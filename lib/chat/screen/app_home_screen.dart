@@ -12,9 +12,15 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   Widget build(BuildContext context) {
     return const Scaffold(
       body: Center(
-        child: Column(children: [
-          Text("welcome to home screen")
-        ],),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+
+          children: [
+            Text("welcome to home screen"),
+            Text("now keep user login function is working"),
+            Text("it will login until logout after one time login")
+          ],
+        ),
       ),
     );
   }

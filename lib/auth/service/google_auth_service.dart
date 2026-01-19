@@ -61,6 +61,8 @@ class GoogleSignInService {
             'email': user.email ?? '',
             'photoURL': user.photoURL ?? '',
             'provider': 'google',
+            'isOnline': true, // set online when signing in
+            'lastSeen': FieldValue.serverTimestamp(),
             'createdAt': FieldValue.serverTimestamp(),
           });
         } else {
