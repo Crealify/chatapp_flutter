@@ -10,17 +10,19 @@ class MainHomeScreen extends StatefulWidget {
 class _MainHomeScreenState extends State<MainHomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-
-          children: [
-            Text("welcome to home screen"),
-            Text("now keep user login function is working"),
-            Text("it will login until logout after one time login")
-          ],
-        ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      // body: const Center(),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.grey.shade50,
+        elevation: 0,
+        unselectedFontSize: 14,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "chats"),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: "Users"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        ],
       ),
     );
   }
