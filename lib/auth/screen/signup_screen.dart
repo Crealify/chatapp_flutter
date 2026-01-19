@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/snackbar.dart';
 import '../../my_button.dart';
 import '../../route.dart';
-import '../service/auth_providder.dart';
+import '../service/auth_provider.dart';
 import '../service/auth_service.dart';
 
 class SignupScreen extends ConsumerWidget {

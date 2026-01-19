@@ -11,9 +11,15 @@ class GoogleSignInService {
     if (!isInitialize) {
       await _googleSignIn.initialize(
         serverClientId:
-            '484988555302-d91nev5jn5sit0qoe3oehpgpp58pl5mt.apps.googleusercontent.com',
+            '745796263660-23s0nr69rk2c26c13i76qo5dtvt6abdp.apps.googleusercontent.com',
       );
     }
+    //Google-service.json ko oAuth ko
+    //  {
+    //       "client_id": "745796263660-23s0nr69rk2c26c13i76qo5dtvt6abdp.apps.googleusercontent.com",
+    //       "client_type": 3
+    //     }
+
     isInitialize = true;
   }
 
@@ -57,12 +63,12 @@ class GoogleSignInService {
             'provider': 'google',
             'createdAt': FieldValue.serverTimestamp(),
           });
-        }else {
+        } else {
           //update online Status for existing user
           await userDoc.update({
-              'isOnline': false,
-              "lastSeen": FieldValue.serverTimestamp(),
-            });
+            'isOnline': false,
+            "lastSeen": FieldValue.serverTimestamp(),
+          });
         }
       }
       return userCredential;

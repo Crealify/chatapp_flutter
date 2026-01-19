@@ -1,5 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
-import 'package:chatapp_flutter/auth/screen/google_loginin_screen.dart';
+import 'package:chatapp_flutter/auth/screen/google_login_screen.dart';
 import 'package:chatapp_flutter/auth/screen/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,7 +7,7 @@ import '../../chat/screen/app_home_screen.dart';
 import '../../core/utils/snackbar.dart';
 import '../../my_button.dart';
 import '../../route.dart';
-import '../service/auth_providder.dart';
+import '../service/auth_provider.dart';
 import '../service/auth_service.dart';
 
 class UserLoginScreen extends ConsumerWidget {

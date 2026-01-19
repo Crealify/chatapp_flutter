@@ -12,7 +12,20 @@
           "package_name": "com.example.chatapp_flutter"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "745796263660-uag5rb8h3s5coma80g5q301j4ds0c7ij.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.chatapp_flutter",
+            "certificate_hash": "2a9cda3c996c91c2d7bd5876609cb6c19508f5be"
+          }
+        },
+        {
+          "client_id": "745796263660-23s0nr69rk2c26c13i76qo5dtvt6abdp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA58-iw_QnBHITQz9Sr0tm4xYeYFG4wA0g"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "745796263660-23s0nr69rk2c26c13i76qo5dtvt6abdp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "745796263660-otfo10fjjkdk2omcdp0vi2ooul85psof.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chatappFlutter"
+              }
+            }
+          ]
         }
       }
     }

@@ -65,7 +65,7 @@ class AuthMethod {
         'lastSeen': FieldValue.serverTimestamp(),
       });
     }
-    await _auth.signOut();
+    await _auth.signOut(); 
   }
 }
 final authMethodProvider = Provider<AuthMethod>((ref) {
