@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../model/user_profile_model.dart';
 
 // ================ provider  =================
@@ -36,7 +35,8 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
         state = ProfileState(isLoading: false);
       }
     });
-  } // load user data form firestore
+  }
+  //===== load user data form firestore ===========
 
   Future<void> loadUserData([User? user]) async {
     final currentUser = user ?? FirebaseAuth.instance.currentUser;
@@ -54,17 +54,20 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
 
       if (doc.exists) {
         state = ProfileState(
-          photoUrl: doc['photoURL'],
-          name: doc['name'],
-          email: doc['email'],
+          photoUrl:
+              doc['photoURL'], // if one of filed name is incorrect then  this imformation is faield to reterive then user infomation is not shown on ui.
+          name: doc['name'],  // if photoURL in firebse doesnot have date it doesnot cause any problem just picture is not shown
+          email: doc['email'], 
           createdAt: (doc['createdAt'] as Timestamp?)?.toDate(),
-          userId: doc['userId'],
+          userId: currentUser.uid,
+          // userId: doc['userId'],
           isLoading: false,
         );
       } else {
         state = ProfileState(userId: currentUser.uid, isLoading: false);
       }
     } catch (e) {
+      print('Profile error: $e');
       state = ProfileState(userId: currentUser.uid, isLoading: false);
     }
   }
