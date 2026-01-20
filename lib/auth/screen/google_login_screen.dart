@@ -111,7 +111,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
     setState(() => _isLoading = true);
 
     try {
-      final userCredential = await GoogleSignInService.signInWithGoogle();
+      final userCredential = await FirebaseServices().signInWithGoogle();
 
       if (!mounted) return;
 

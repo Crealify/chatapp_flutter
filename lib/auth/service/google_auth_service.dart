@@ -1,9 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+final firebaseServicesProvider = Provider<FirebaseServices>((ref) {
+  return FirebaseServices();
+});
+
 // Google Sign-In Service Class
-class GoogleSignInService {
+class FirebaseServices {
+  // class GoogleSignInService {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
   static bool isInitialize = false;
@@ -24,7 +30,7 @@ class GoogleSignInService {
   }
 
   // Sign in with Google
-  static Future<UserCredential?> signInWithGoogle() async {
+  Future<UserCredential?> signInWithGoogle() async {
     try {
       initSignIn();
       final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
@@ -81,12 +87,13 @@ class GoogleSignInService {
   }
 
   // Sign out
-  static Future<void> signOut() async {
+  Future<void> signOut() async {
     try {
       //Set offine before sigining out
       if (_auth.currentUser != null) {
         await FirebaseFirestore.instance
-            .collection('user')
+            .collection('users')
+            // .collection('users')
             .doc(_auth.currentUser!.uid)
             .update({
               'isOnline': false,
