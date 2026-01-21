@@ -1,4 +1,4 @@
-import 'package:chatapp_flutter/chat/service/service.dart';
+import 'package:chatapp_flutter/chat/service/chat_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,4 +8,4 @@ final authStateProvider = StreamProvider<User?>((ref) {
   // to make keep user login until logout
 });
 //==================== CHAT SERVICE ===================
-final chatServixeProvider = Provider<ChatService>((ref) => ChatService());
+final chatServiceProvider = Provider<ChatService>((ref) => ChatService());

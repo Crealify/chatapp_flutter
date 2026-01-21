@@ -1,3 +1,4 @@
+import 'package:chatapp_flutter/chat/provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -13,7 +14,8 @@ class UsertListNotifier extends StateNotifier<UserListTileState> {
   }
   //========== CHECK THE STATUS =============
   Future<void> _checkRelationship() async {
-    //final chatService = ref.read();
+    final chatService = ref.read(chatServiceProvider);
     final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final friends = await chatService.areUsersFriends(currentUserId, user.uid);
   }
 }

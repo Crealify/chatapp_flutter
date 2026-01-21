@@ -23,6 +23,23 @@ class ChatService {
               .toList(),
         );
   }
+
+  //================= Are Users Friends =======================
+  Future<bool> areUsersFriends(String userID1, String userID2) async {
+    final chatId = _generateChatId(userID1, userID2);
+    //only read from firestore if not cached
+    final friendship = await _firestore
+        .collection("friendships")
+        .doc(chatId)
+        .get();
+
+    final exists = friendship.exists;
+    return exists;
+  }
+  //================= UTILS =======================
+
+  String _generateChatId(String userID1, String userID2) {
+    final ids = [userID1, userID2]..sort();
+    return "${ids[0]}_${ids[1]}";
+  }
 }
-// in this user list screen we have send the request to be a friends before star to chat
-// we will work on it some time later.
