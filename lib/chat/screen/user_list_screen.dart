@@ -26,7 +26,8 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
   Widget build(BuildContext context) {
     //watch the auto-refresh provider to trigger refreshes
     ref.watch(autoRefreshProvider);
-    //final users = ref.watch()
+    final users = ref.watch(filteredUsersProvider);
+    final searchQuery = ref.watch(searchQueryProvider);
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyActions: true,

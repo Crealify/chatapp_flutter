@@ -106,3 +106,26 @@ final autoRefreshProvider = Provider<void>((ref) {
     });
   });
 });
+
+//==================== SEARCH ===================
+final searchQueryProvider = StateProvider<String>((ref) => '');
+final filteredUsersProvider = Provider<AsyncValue<List<UserModel>>>((ref) {
+  final users = ref.watch(usersProvider);
+  final query = ref.watch(searchQueryProvider);
+  return users.when(
+    data: (list) {
+      if (query.isEmpty) return AsyncValue.data(list);
+      return AsyncValue.data(
+        list
+            .where(
+              (u) =>
+                  u.name.toLowerCase().contains(query.toLowerCase()) ||
+                  u.email.toLowerCase().contains(query.toLowerCase()),
+            )
+            .toList(),
+      );
+    },
+    error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+    loading: () => AsyncValue.loading(),
+  );
+});
