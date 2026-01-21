@@ -1,6 +1,7 @@
 import 'package:chatapp_flutter/auth/screen/user_login_screen.dart';
 import 'package:chatapp_flutter/auth/service/google_auth_service.dart';
 import 'package:chatapp_flutter/chat/provider/user_profile_provider.dart';
+import 'package:chatapp_flutter/core/utils/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -72,7 +73,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     bottom: 5,
                     right: 8,
                     child: GestureDetector(
-                      onTap: () async {},
+                      onTap: () async {
+                        final success = await notifier.updateProfilePicture();
+                        if (success && context.mounted) {
+                          showAppSnackbar(
+                            context: context,
+                            type: SnackbarType.success,
+                            description: "Profile picture change sucessfully!",
+                          );
+                        } else if (context.mounted) {
+                          showAppSnackbar(
+                            context: context,
+                            type: SnackbarType.error,
+                            description: "Failed to update profile pic",
+                          );
+                        }
+                      },
                       child: CircleAvatar(
                         radius: 13,
                         backgroundColor: Colors.black,
