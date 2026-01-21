@@ -72,4 +72,56 @@ class UsertListNotifier extends StateNotifier<UserListTileState> {
     );
   }
 
+  Future<String> sendRequest() async {
+    state = state.copyWith(isLoading: true);
+    final chatservice = ref.read(chatServiceProvider);
+    final result = await chatservice.sendMessageRequest(
+      receiverId: user.uid,
+      receiverName: user.name,
+      receiverEmail: user.email,
+    );
+    if (result == 'success') {
+      state = state.copyWith(
+        isLoading: false,
+        requestStatus: 'pending',
+        isRequestsender: true,
+        pendingRequestId:
+            '${FirebaseAuth.instance.currentUser!.uid}_${user.uid}',
+      );
+    } else {
+      state = state.copyWith(isLoading: false);
+    }
+    return result;
+  }
+
+  Future<String> acceptRequest() async {
+    if (state.pendingRequestId == null) return 'no-request';
+    state = state.copyWith(isLoading: true);
+    final chatService = ref.read(chatServiceProvider);
+    final result = await chatService.acceptMessageRequest(
+      state.pendingRequestId!,
+      user.uid,
+    );
+    if (result == 'success') {
+      state = state.copyWith(
+        isLoading: false,
+        areFriends: true,
+        requestStatus: null,
+        isRequestsender: false,
+        pendingRequestId: null,
+      );
+      //refresh provbiders
+      //ref.invalidate();
+    } else {
+      state = state.copyWith(isLoading: false);
+    }
+    return result;
+  }
 }
+
+final userListProvider =
+    StateNotifierProvider.family<
+      UsertListNotifier,
+      UserListTileState,
+      UserModel
+    >((ref, user) => UsertListNotifier(ref, user));
