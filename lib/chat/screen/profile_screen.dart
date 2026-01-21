@@ -1,5 +1,7 @@
 import 'package:chatapp_flutter/auth/screen/user_login_screen.dart';
 import 'package:chatapp_flutter/auth/service/google_auth_service.dart';
+import 'package:chatapp_flutter/chat/provider/provider.dart';
+import 'package:chatapp_flutter/chat/provider/user_list_provider.dart';
 import 'package:chatapp_flutter/chat/provider/user_profile_provider.dart';
 import 'package:chatapp_flutter/core/utils/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -157,6 +159,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     await FirebaseServices().signOut();
                     // Invalidate all provider
                     ref.invalidate(profileProvider);
+                    ref.invalidate(userListProvider);
+                    ref.invalidate(requestsProvider);
+                    ref.invalidate(usersProvider);
+
                     if (context.mounted) {
                       Navigator.pushReplacement(
                         context,

@@ -112,6 +112,7 @@ class UsertListNotifier extends StateNotifier<UserListTileState> {
       );
       //refresh provbiders
       //ref.invalidate();
+      ref.invalidate(requestsProvider);
     } else {
       state = state.copyWith(isLoading: false);
     }
