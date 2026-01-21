@@ -79,58 +79,6 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
     loadUserData();
   }
 
-  // pick and upload new profile image
-  // Future<bool> updateProfilePicture() async {
-  //   final user = FirebaseAuth.instance.currentUser;
-  //   if (user == null) return false;
-
-  //   final picker = ImagePicker();
-  //   final pickerFile = await picker.pickImage(source: ImageSource.gallery);
-
-  //   if (pickerFile == null) return false;
-  //   state = state.copyWith(isUploading: true);
-  //   File file = File(pickerFile.path);
-  //   try {
-  //     // upload to firebase storage
-  //     final storageRef = FirebaseStorage.instance
-  //         .ref()
-  //         .child("profile_picture")
-  //         .child("${user.uid}.jpg");
-  //     await storageRef.putFile(file);
-  //     final newUrl = await storageRef.getDownloadURL();
-
-  //     //update firestore
-  //     await FirebaseFirestore.instance.collection("users").doc(user.uid).update(
-  //       {"photoURL": newUrl},
-  //     );
-
-  //     //update state
-  //     state = state.copyWith(photoUrl: newUrl, isLoading: false);
-  //     return true; //success
-  //   } catch (e) {
-  //     state = state.copyWith(isUploading: false);
-  //     return false; // failed
-  //   }
-  // }
-
-  // Future<String> updateProfilePicture(File file, String folder) async {
-  //   try {
-  //     final cloudinary = CloudinaryPublic('dsytr6bft', folder, cache: false);
-
-  //     CloudinaryResponse response = await cloudinary.uploadFile(
-  //       CloudinaryFile.fromFile(
-  //         file.path,
-  //         resourceType: folder == 'chatapp_flutter_images'
-  //             ? CloudinaryResourceType.Video
-  //             : CloudinaryResourceType.Image,
-  //       ),
-  //     );
-  //     //this securedUrl is used to store the code in firebase document in  safe way in firestore of cloundniary
-  //     return response.secureUrl;
-  //   } catch (e) {
-  //     throw Exception('Failed to upload file: $e');
-  //   }
-  // }
   Future<bool> updateProfilePicture() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return false;
@@ -148,8 +96,8 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       final cloudinaryImages = CloudinaryPublic(
         dotenv.env['CLOUDINARY_CLOUD_NAME']!,
         dotenv.env['CLOUDINARY_UPLOAD_PRESET']!,
-      //go to cloudindary setting -> then upload -> create preset 
-      //preset name: chatapp_flutter , unsigned and assests name: chatapp_flutter/images
+        //go to cloudindary setting -> then upload -> create preset
+        //preset name: chatapp_flutter , unsigned and assests name: chatapp_flutter/images
         cache: false,
       );
 
@@ -209,25 +157,6 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
   //       },
   //     ),
   //   );
-  // }
-
-  // Future<String> updateProfilePicture(File file, String folder) async {
-  //   try {
-  //     final cloudinary = CloudinaryPublic('dsytr6bft', folder, cache: false);
-
-  //     CloudinaryResponse response = await cloudinary.uploadFile(
-  //       CloudinaryFile.fromFile(
-  //         file.path,
-  //         resourceType: folder == 'youtube_clone_videos'
-  //             ? CloudinaryResourceType.Video
-  //             : CloudinaryResourceType.Image,
-  //       ),
-  //     );
-  //     //this securedUrl is used to store the code in firebase document in  safe way in firestore of cloundniary
-  //     return response.secureUrl;
-  //   } catch (e) {
-  //     throw Exception('Failed to upload file: $e');
-  //   }
   // }
 
   @override
