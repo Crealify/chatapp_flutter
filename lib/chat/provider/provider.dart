@@ -91,3 +91,18 @@ final requestsProvider =
       final service = ref.watch(chatServiceProvider);
       return RequestNotifier(service);
     });
+
+//==================== Auto refresh on Auth Change ===================
+final autoRefreshProvider = Provider<void>((ref) {
+  ref.listen<AsyncValue<User?>>(authStateProvider, (previous, next) {
+    next.whenData((user) {
+      if (user != null) {
+        Future.delayed(Duration(milliseconds: 500), () {
+          ref.invalidate(usersProvider);
+          ref.invalidate(requestsProvider);
+          // ref.invalidate();
+        });
+      }
+    });
+  });
+});
