@@ -33,12 +33,12 @@ class UsertListNotifier extends StateNotifier<UserListTileState> {
     final receiverRequestID = "${user.uid}_$currentUserId"; //note no{}
 
     final senderRequestDoc = await FirebaseFirestore.instance
-        .collection("messageRequest")
+        .collection("messageRequests")
         .doc(sentRequestID)
         .get();
 
     final receiverRequestDoc = await FirebaseFirestore.instance
-        .collection("messageRequest")
+        .collection("messageRequests")
         .doc(receiverRequestID)
         .get();
 
@@ -72,5 +72,4 @@ class UsertListNotifier extends StateNotifier<UserListTileState> {
     );
   }
 
-  
 }
