@@ -106,8 +106,17 @@ class UserListTile extends ConsumerWidget {
                 type: SnackbarType.success,
                 description: "Request Accept!",
               );
+            } else {
+              if (context.mounted) {
+                showAppSnackbar(
+                  context: context,
+                  type: SnackbarType.error,
+                  description: "Failed: $result",
+                );
+              }
             }
-          },
+            
+          },child: buttonName(Icons.done, "Accept"),
         );
       }
     }
