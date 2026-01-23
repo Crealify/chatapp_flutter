@@ -31,10 +31,11 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
     final searchQuery = ref.watch(searchQueryProvider);
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyActions: true,
+        automaticallyImplyActions: false,
         title: Text("All Users", style: TextStyle(fontWeight: FontWeight.w500)),
         backgroundColor: Colors.white,
         centerTitle: true,
+        
       ),
       body: RefreshIndicator(
         //enable push to refresh

@@ -115,11 +115,39 @@ class UserListTile extends ConsumerWidget {
                 );
               }
             }
-            
-          },child: buttonName(Icons.done, "Accept"),
+          },
+          child: buttonName(Icons.done, "Accept"),
         );
       }
     }
+    // ==== default-> not friends ter -> show "add friend" button
+    return MaterialButton(
+      color: Colors.blueAccent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadiusGeometry.circular(10),
+      ),
+
+      onPressed: () async {
+        final result = await notifer.sendRequest();
+        if (result == "success" && context.mounted) {
+          showAppSnackbar(
+            context: context,
+            type: SnackbarType.success,
+            description: "Request Send Sucessfully!",
+          );
+        } else {
+          if (context.mounted) {
+            showAppSnackbar(
+              context: context,
+              type: SnackbarType.error,
+              description: result,
+            );
+          }
+        }
+      },
+      child: buttonName(Icons.person, "Add Friend"),
+    );
   }
 
   SizedBox buttonName(IconData icon, String name) {
