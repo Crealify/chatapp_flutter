@@ -162,6 +162,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ref.invalidate(userListProvider);
                     ref.invalidate(requestsProvider);
                     ref.invalidate(usersProvider);
+                    ref.invalidate(filteredUsersProvider);
+                    ref.invalidate(searchQueryProvider);
 
                     if (context.mounted) {
                       Navigator.pushReplacement(

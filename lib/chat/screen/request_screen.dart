@@ -85,8 +85,36 @@ class _RequestScreenState extends ConsumerState<RequestScreen> {
                               type: SnackbarType.success,
                               description: "Request accepted!",
                             );
+                            //=========== Refresh all Provider after accepting
+                            ref.invalidate(usersProvider);
                           }
                         },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.green,
+                          child: Icon(Icons.check, color: Colors.white),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      //reject request
+                      GestureDetector(
+                        onTap: () async {
+                          await ref
+                              .read(requestsProvider.notifier)
+                              .rejectRequest(request.id);
+                          if (context.mounted) {
+                            showAppSnackbar(
+                              context: context,
+                              type: SnackbarType.error,
+                              description: "Request rejected!",
+                            );
+                            //=========== Refresh all Provider after rejecting
+                            // ref.invalidate(usersProvider);
+                          }
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.red,
+                          child: Icon(Icons.close, color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
