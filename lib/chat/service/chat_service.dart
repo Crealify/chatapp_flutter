@@ -3,6 +3,8 @@ import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../core/utils/chat_id.dart';
+
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -27,7 +29,7 @@ class ChatService {
 
   //================= Are Users Friends =======================
   Future<bool> areUsersFriends(String userID1, String userID2) async {
-    final chatId = _generateChatId(userID1, userID2);
+    final chatId = generateChatId(userID1, userID2);
     //only read from firestore if not cached
     final friendship = await _firestore
         .collection("friendships")
@@ -110,7 +112,7 @@ class ChatService {
       });
 
       //====== create firendships
-      final friendshipId = _generateChatId(currentUserId, senderId);
+      final friendshipId = generateChatId(currentUserId, senderId);
       batch.set(_firestore.collection("friendships").doc(friendshipId), {
         'participants': [currentUserId, senderId],
         'createdAt': FieldValue.serverTimestamp(),
@@ -164,12 +166,5 @@ class ChatService {
     } catch (e) {
       return e.toString();
     }
-  }
-
-  //================= UTILS =======================
-
-  String _generateChatId(String userID1, String userID2) {
-    final ids = [userID1, userID2]..sort();
-    return "${ids[0]}_${ids[1]}";
   }
 }

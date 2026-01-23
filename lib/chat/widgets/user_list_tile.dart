@@ -1,6 +1,10 @@
 import 'package:chatapp_flutter/chat/model/user_list_model.dart';
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:chatapp_flutter/chat/provider/user_list_provider.dart';
+import 'package:chatapp_flutter/chat/screen/chat_screen/chat_screen.dart';
+import 'package:chatapp_flutter/core/utils/chat_id.dart';
+import 'package:chatapp_flutter/route.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -50,8 +54,17 @@ class UserListTile extends ConsumerWidget {
 
     // =========== already friend  -> show 'chat' button =======
     if (state.areFriends) {
-      return MaterialButton(onPressed: () {});
+      return MaterialButton(
+        color: Colors.green,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadiusGeometry.circular(10),
+        ),
+        onPressed: () => _navigateToChat(context),
+        child: buttonName(Icons.chat, "chat"),
+      );
     }
+    //
   }
 
   SizedBox buttonName(IconData icon, String name) {
@@ -71,4 +84,9 @@ class UserListTile extends ConsumerWidget {
   }
 
   //Navigator to  child screenwhen "Chat botton clicked"
+  Future<void> _navigateToChat(BuildContext context) async {
+    final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final chatId = generateChatId(currentUserId, user.uid);
+    NavigationHelper.push(context, ChatScreen(chatId: chatId, otherUser: user));
+  }
 }
