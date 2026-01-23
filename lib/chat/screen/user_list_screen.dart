@@ -32,7 +32,7 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyActions: true,
-        title: Text("All Users"),
+        title: Text("All Users", style: TextStyle(fontWeight: FontWeight.w500)),
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
