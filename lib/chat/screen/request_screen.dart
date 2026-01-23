@@ -43,7 +43,7 @@ class _RequestScreenState extends ConsumerState<RequestScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.inbox, size: 16, color: Colors.white),
+                  Icon(Icons.inbox, size: 56, color: Colors.grey),
                   SizedBox(height: 15),
                   Text(
                     "No pending request",
@@ -62,7 +62,7 @@ class _RequestScreenState extends ConsumerState<RequestScreen> {
                 margin: EdgeInsets.all(8),
                 child: ListTile(
                   leading: CircleAvatar(
-                    radius: 28,
+                    radius: 25,
                     backgroundImage: request.photoURL != null
                         ? NetworkImage(request.photoURL!)
                         : null,
