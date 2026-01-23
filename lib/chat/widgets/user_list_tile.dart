@@ -3,6 +3,7 @@ import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:chatapp_flutter/chat/provider/user_list_provider.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/chat_screen.dart';
 import 'package:chatapp_flutter/core/utils/chat_id.dart';
+import 'package:chatapp_flutter/core/utils/snackbar.dart';
 import 'package:chatapp_flutter/route.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +65,52 @@ class UserListTile extends ConsumerWidget {
         child: buttonName(Icons.chat, "chat"),
       );
     }
-    //
+    //current users sent the request -> show "pending "
+    if (state.requestStatus == "pending") {
+      if (state.isRequestsender) {
+        return ElevatedButton(
+          onPressed: null,
+          child: SizedBox(
+            width: 100,
+            height: 32,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.pending_actions, color: Colors.black, size: 20),
+                SizedBox(width: 5),
+                Text(
+                  "Pending",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      } else {
+        // current user received the request -> show accept button
+        return MaterialButton(
+          color: Colors.orange,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadiusGeometry.circular(10),
+          ),
+          onPressed: () async {
+            final result = await notifer.acceptRequest();
+            if (result == "success" && context.mounted) {
+              showAppSnackbar(
+                context: context,
+                type: SnackbarType.success,
+                description: "Request Accept!",
+              );
+            }
+          },
+        );
+      }
+    }
   }
 
   SizedBox buttonName(IconData icon, String name) {
