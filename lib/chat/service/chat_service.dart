@@ -55,6 +55,17 @@ class ChatService {
     try {
       final currentUser = _auth.currentUser!;
       final requestId = "${currentUserId}_$receiverId";
+      //get photo url from firestore user collection
+
+      final userDoc = await _firestore
+          .collection("users")
+          .doc(currentUserId)
+          .get();
+      String? userPhotoURL;
+      if (userDoc.exists) {
+        final userModel = UserModel.fromMap(userDoc.data()!);
+        userPhotoURL = userModel.photoURL;
+      }
 
       final existingRequest = await _firestore
           .collection("messageRequests")
@@ -74,7 +85,11 @@ class ChatService {
         senderEmail: currentUser.email!,
         status: "pending",
         createdAt: DateTime.now(),
-        photoURL: currentUser.photoURL,
+        // photoURL: currentUser.photoURL,
+        // the error that we have face due to => we have display the image form auth user not from user collection
+        //lets display the photoURL form user collection then the problem is solve and image is updated when user change it profile picture
+        photoURL: userPhotoURL,
+        //delete messageRequest documents then  good to do
       );
 
       await _firestore
