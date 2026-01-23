@@ -49,16 +49,43 @@ final AppStateManagerProvider = ChangeNotifierProvider<AppStateManager>((ref) {
   return AppStateManager();
 });
 
-class AppStateManager extends ChangeNotifier {
+class AppStateManager extends ChangeNotifier with WidgetsBindingObserver {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   bool _isInitialized = false;
 
   AppStateManager() {
+    //listen to app lifecycle change(remuse, pause, etc )
+    WidgetsBinding.instance.addObserver(this);
     // initialize session when class is created
     initializeUserSession(); //  CALL IT
   }
+  @override
+  void dispose() {
+    WidgetsBinding.instance.addObserver(this);
+    _setOnlineStatus(false); //mark userr offline on dispose
+
+    super.dispose();
+  }
+
+  // ===== handle app lifecycle to update online/offline
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _setOnlineStatus(true); // mark online when resumed
+        break;
+      case AppLifecycleState.paused:
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.detached:
+        _setOnlineStatus(false); //mark online otherwise
+        break;
+      default:
+        break;
+    }
+  }
+
   //Initialize user session(runs once per app start)
 
   Future<void> initializeUserSession() async {
@@ -97,6 +124,26 @@ class AppStateManager extends ChangeNotifier {
       _isInitialized = true;
       // debugPrint('Firestore error: $e');
     }
+  }
+
+  // set user online/offline
+  Future<void> _setOnlineStatus(bool isOnline) async {
+    final user = _auth.currentUser;
+    if (user == null) return;
+    try {
+      await _firestore.collection("users").doc(user.uid).update({
+        'isOnline': isOnline,
+        'lastSeen': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print("Error updating online status : $e");
+      // return e.toString()
+    }
+  }
+
+  //public method to manually set online status
+  Future<void> updateOnlinestatus(bool isOnline) async {
+    await _setOnlineStatus(isOnline);
   }
 
   // detects which provider user used (google or email)

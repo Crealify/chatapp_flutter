@@ -1,6 +1,7 @@
 import 'package:chatapp_flutter/chat/model/user_list_model.dart';
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:chatapp_flutter/chat/provider/user_list_provider.dart';
+import 'package:chatapp_flutter/chat/provider/user_status_provider.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/chat_screen.dart';
 import 'package:chatapp_flutter/core/utils/chat_id.dart';
 import 'package:chatapp_flutter/core/utils/snackbar.dart';
@@ -31,8 +32,21 @@ class UserListTile extends ConsumerWidget {
       title: Text(user.name, maxLines: 1, overflow: TextOverflow.ellipsis),
       //all userwill be display excepted itself
       //=========== show online / offline in sattuss
-      subtitle: Text("Offline"), // we will fuction it sometime later
-      // === Right-side action button(chat, add friend, accept request m etc)
+      // subtitle: Text("Offline"), // we will fuction it sometime later
+      // // === Right-side action button(chat, add friend, accept request m etc)
+      subtitle: Consumer(
+        builder: (context, ref, child) {
+          final statusAsync = ref.watch(userStatusProvider(user.uid));
+          return statusAsync.when(
+            data: (isOnline) => Text(
+              isOnline ? 'Online' : 'Offline',
+              style: TextStyle(color: isOnline ? Colors.green : Colors.grey),
+            ),
+            error: (_, _) => Text(user.email),
+            loading: () => Text(user.email),
+          );
+        },
+      ),
       trailing: _buildTrailingWidget(context, ref, state, notifier),
     );
   }
@@ -173,3 +187,6 @@ class UserListTile extends ConsumerWidget {
     NavigationHelper.push(context, ChatScreen(chatId: chatId, otherUser: user));
   }
 }
+
+//one  thing that i will make you clearm if you open the app on simulator/emulator(virtualdevice)and terminate theapp
+// it willshow online, this case will not happen on real device, i will open two virtual devices  and show how perfectally it will show online offline
