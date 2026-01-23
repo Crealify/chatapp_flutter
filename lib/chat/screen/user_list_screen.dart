@@ -35,7 +35,34 @@ class _UserListScreenState extends ConsumerState<UserListScreen> {
         title: Text("All Users", style: TextStyle(fontWeight: FontWeight.w500)),
         backgroundColor: Colors.white,
         centerTitle: true,
-        
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(56),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+            child: TextField(
+              onChanged: (value) =>
+                  ref.read(searchQueryProvider.notifier).state = value,
+              decoration: InputDecoration(
+                hintText: "Search user by name or email...",
+                prefixIcon: Icon(Icons.search),
+                suffixIcon: searchQuery.isEmpty
+                    ? IconButton(
+                        onPressed: () =>
+                            ref.read(searchQueryProvider.notifier).state = "",
+                        icon: Icon(Icons.clear),
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25)),
+                ),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
       body: RefreshIndicator(
         //enable push to refresh
