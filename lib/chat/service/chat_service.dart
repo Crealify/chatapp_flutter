@@ -27,6 +27,18 @@ class ChatService {
         );
   }
 
+  // ================ OnlineStatus =========================
+  Future<void> updateUserOnlineStatus(bool isOnline) async {
+    if (currentUserId.isEmpty) return;
+    try {
+      await _firestore.collection("users").doc(currentUserId).update({
+        'isOnline': isOnline,
+        'lastSeen': FieldValue.serverTimestamp(),
+      });
+    } catch (e) { 
+    }
+  }
+
   //================= Are Users Friends =======================
   Future<bool> areUsersFriends(String userID1, String userID2) async {
     final chatId = generateChatId(userID1, userID2);
