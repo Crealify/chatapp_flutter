@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/utils/chat_id.dart';
+import '../model/chat_model.dart';
 
 class ChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -35,8 +36,7 @@ class ChatService {
         'isOnline': isOnline,
         'lastSeen': FieldValue.serverTimestamp(),
       });
-    } catch (e) { 
-    }
+    } catch (e) {}
   }
 
   //================= Are Users Friends =======================
@@ -194,4 +194,27 @@ class ChatService {
       return e.toString();
     }
   }
+  // ====================== CHAT ============
+  // Add CACHING FOR CHATS
+
+  final Map<String, List<ChatModel>> _chatsCache = {};
+
+  Stream<List<ChatModel>> getUserChats() {
+    if (currentUserId.isEmpty) return Stream.value([]);
+    return _firestore
+        .collection("chats")
+        .where("Participants", arrayContains: currentUserId)
+        .orderBy('lastMessageTime', descending: true)
+        .limit(20)
+        .snapshots()
+        .map((snapshots) {
+          final docs = snapshots.docs
+              .map((doc) => ChatModel.fromMap(doc.data()))
+              .toList();
+          return docs;
+        });
+  }
+
+
+
 }
