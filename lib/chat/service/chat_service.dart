@@ -202,8 +202,11 @@ class ChatService {
   Stream<List<ChatModel>> getUserChats() {
     if (currentUserId.isEmpty) return Stream.value([]);
     return _firestore
+            //if you have user orderBt and where on same collection then you need to add a indexing
         .collection("chats")
-        .where("Participants", arrayContains: currentUserId)
+        .where("participants", arrayContains: currentUserId)
+
+
         .orderBy('lastMessageTime', descending: true)
         .limit(20)
         .snapshots()
@@ -214,7 +217,18 @@ class ChatService {
           return docs;
         });
   }
+   // Add CACHING FOR MESSAGES
 
-
-
+  Stream<List<MessageRequestModel>> getChatMessage(
+    String chatId, {
+    int limit = 20,
+    DocumentSnapshot? lastDocument,
+  }) {
+    Query query = _firestore
+    //if you have user orderBt and where on same collection then you need to add a indexing
+        .collection('messages')
+        .where('chatId', isEqualTo: chatId)
+        .orderBy(" ", descending: true)
+        .limit(limit);
+  }
 }
