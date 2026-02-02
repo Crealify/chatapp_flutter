@@ -1,3 +1,4 @@
+import 'package:chatapp_flutter/chat/model/message_model.dart';
 import 'package:chatapp_flutter/chat/model/message_request_model.dart';
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -202,11 +203,9 @@ class ChatService {
   Stream<List<ChatModel>> getUserChats() {
     if (currentUserId.isEmpty) return Stream.value([]);
     return _firestore
-            //if you have user orderBt and where on same collection then you need to add a indexing
+        //if you have user orderBt and where on same collection then you need to add a indexing
         .collection("chats")
         .where("participants", arrayContains: currentUserId)
-
-
         .orderBy('lastMessageTime', descending: true)
         .limit(20)
         .snapshots()
@@ -217,18 +216,30 @@ class ChatService {
           return docs;
         });
   }
-   // Add CACHING FOR MESSAGES
+  // Add CACHING FOR MESSAGES
 
-  Stream<List<MessageRequestModel>> getChatMessage(
+  Stream<List<MessageModel>> getChatMessages(
     String chatId, {
     int limit = 20,
     DocumentSnapshot? lastDocument,
   }) {
     Query query = _firestore
-    //if you have user orderBt and where on same collection then you need to add a indexing
+        //if you have user orderBt and where on same collection then you need to add a indexing
         .collection('messages')
         .where('chatId', isEqualTo: chatId)
-        .orderBy(" ", descending: true)
+        .orderBy("timestamp ", descending: true)
         .limit(limit);
+    if (lastDocument != null) {
+      query = query.startAfterDocument(lastDocument);
+    }
+    return query.snapshots().map((snapshot) {
+      final docs = snapshot.docs
+          .map(
+            (doc) => MessageModel.fromMap(doc.data() as Map<String, dynamic>),
+          )
+          .toList();
+      print('sizeofDocs2 ${docs.length}');
+      return docs;
+    });
   }
 }

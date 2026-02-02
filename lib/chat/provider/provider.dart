@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../model/chat_model.dart';
 import '../model/user_model.dart';
 
 //==================== Auth State ===================
@@ -106,6 +107,25 @@ final autoRefreshProvider = Provider<void>((ref) {
     });
   });
 });
+
+//=================== CHAT =================
+class ChatsNotifier extends StateNotifier<AsyncValue<List<ChatModel>>> {
+  final ChatService _chatService;
+  StreamSubscription<List<ChatModel>>? _subscription;
+
+  ChatsNotifier(this._chatService) : super(AsyncValue.loading()) {
+    _init();
+  }
+
+  void _init() {
+    _subscription?.cancel();
+    _subscription = _chatService.getUserChats().listen(
+      (chats) => state = AsyncValue.data(chats),
+      onError: (error, stackTrace) =>
+          state = AsyncValue.error(error, stackTrace),
+    );
+  }
+}
 
 //==================== SEARCH ===================
 final searchQueryProvider = StateProvider<String>((ref) => '');
