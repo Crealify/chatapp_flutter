@@ -164,6 +164,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ref.invalidate(usersProvider);
                     ref.invalidate(filteredUsersProvider);
                     ref.invalidate(searchQueryProvider);
+                    ref.invalidate(chatsProvider);
 
                     if (context.mounted) {
                       Navigator.pushReplacement(

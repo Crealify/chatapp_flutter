@@ -125,7 +125,20 @@ class ChatsNotifier extends StateNotifier<AsyncValue<List<ChatModel>>> {
           state = AsyncValue.error(error, stackTrace),
     );
   }
+
+  void refresh() => _init();
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
 }
+
+final chatsProvider =
+    StateNotifierProvider<ChatsNotifier, AsyncValue<List<ChatModel>>>((ref) {
+      final service = ref.watch(chatServiceProvider);
+      return ChatsNotifier(service);
+    });
 
 //==================== SEARCH ===================
 final searchQueryProvider = StateProvider<String>((ref) => '');

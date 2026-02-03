@@ -14,10 +14,21 @@ class UserListScreen extends ConsumerStatefulWidget {
 }
 
 class _UserListScreenState extends ConsumerState<UserListScreen> {
+  @override
+  void InitState() {
+    super.initState();
+    //force refresh when screen is  first loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(usersProvider);
+      ref.invalidate(chatsProvider);
+    });
+  }
+
   Future<void> onRefresh() async {
     //clear friendship cache before refreshing
     ref.invalidate(usersProvider);
     ref.invalidate(requestsProvider);
+    // ref.invalidate(chatsProvider);
 
     // wait a vit for the provider to refresh
     await Future.delayed(Duration(milliseconds: 500));

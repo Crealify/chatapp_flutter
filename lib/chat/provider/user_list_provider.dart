@@ -110,8 +110,8 @@ class UsertListNotifier extends StateNotifier<UserListTileState> {
         isRequestsender: false,
         pendingRequestId: null,
       );
-      //refresh provbiders
-      //ref.invalidate();
+      //refresh providers
+      ref.invalidate(chatsProvider);
       ref.invalidate(requestsProvider);
     } else {
       state = state.copyWith(isLoading: false);
