@@ -131,8 +131,27 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
 
                     // show unread higlight if other user sent message
 
-                    return ListView(
+                    return ListTile(
                       // user profile+ onlline offline status
+                      // if friend request is accept then we will display the user
+                      //prfile on schats screen on both side
+                      leading: Stack(
+                        children: [
+                          CircleAvatar(
+                            // radius: 60,
+                            backgroundImage: otherUser.photoURL != null
+                                ? NetworkImage(otherUser.photoURL!)
+                                : null,
+                            child: otherUser.photoURL == null
+                                ? Text(
+                                    otherUser.name.isNotEmpty
+                                        ? otherUser.name[0].toLowerCase()
+                                        : "U",
+                                  )
+                                : null,
+                          ),
+                        ],
+                      ),
                     );
                   },
                 );
