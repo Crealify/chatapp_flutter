@@ -1,5 +1,6 @@
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:chatapp_flutter/chat/provider/provider.dart';
+import 'package:chatapp_flutter/chat/provider/user_status_provider.dart';
 import 'package:chatapp_flutter/chat/screen/request_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -149,6 +150,29 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                                         : "U",
                                   )
                                 : null,
+                          ),
+                          // online// offline status
+                          Positioned(
+                            bottom: 0,
+                            right: 2,
+                            child: Consumer(
+                              builder: (context, ref, child) {
+                                final statusAsync = ref.watch(
+                                  userStatusProvider(otherUser.uid),
+                                );
+                                return statusAsync.when(
+                                  data: (isOnline) => CircleAvatar(
+                                    radius: 5,
+                                    backgroundColor: isOnline
+                                        ? Colors.green
+                                        : Colors.grey,
+                                  ),
+                                  error: (error, stackTrace) =>
+                                      Text(otherUser.email),
+                                  loading: () => Text(otherUser.email),
+                                );
+                              },
+                            ),
                           ),
                         ],
                       ),
