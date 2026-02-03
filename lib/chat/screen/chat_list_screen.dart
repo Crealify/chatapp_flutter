@@ -1,6 +1,7 @@
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:chatapp_flutter/chat/provider/provider.dart';
 import 'package:chatapp_flutter/chat/provider/user_status_provider.dart';
+import 'package:chatapp_flutter/chat/screen/chat_screen/chat_screen.dart';
 import 'package:chatapp_flutter/chat/screen/request_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -175,6 +176,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                             ),
                           ),
                         ],
+                      ),
+                      // Name of the user
+                      title: Text(otherUser.name),
+                      subtitle: Text(
+                        "You can now start to chat",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onTap: () => NavigationHelper.push(
+                        context,
+                        ChatScreen(chatId: chat.chatId, otherUser: otherUser),
                       ),
                     );
                   },
