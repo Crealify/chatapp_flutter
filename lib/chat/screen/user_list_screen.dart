@@ -15,7 +15,7 @@ class UserListScreen extends ConsumerStatefulWidget {
 
 class _UserListScreenState extends ConsumerState<UserListScreen> {
   @override
-  void InitState() {
+  void initState() {
     super.initState();
     //force refresh when screen is  first loaded
     WidgetsBinding.instance.addPostFrameCallback((_) {

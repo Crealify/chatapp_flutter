@@ -1,4 +1,5 @@
 import 'package:chatapp_flutter/chat/model/user_model.dart';
+import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/user_chat_profile.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -13,6 +14,16 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        forceMaterialTransparency: true,
+        backgroundColor: Colors.white,
+        title: UserChatProfile(widget: widget),
+
+        // in appbar acitions: we will implemet video and audion call feature
+        actions: [],
+      ),
+    );
   }
 }
