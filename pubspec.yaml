@@ -45,6 +45,9 @@ dependencies:
   intl: ^0.20.2
   cloudinary_public: ^0.23.1
   flutter_dotenv: ^6.0.0
+  zego_uikit_prebuilt_call: ^4.22.2
+  zego_uikit: ^2.28.43
+  zego_uikit_signaling_plugin: ^2.8.20
 
 dev_dependencies:
   flutter_test:
