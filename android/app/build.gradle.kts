@@ -1,6 +1,6 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    id("org.jetbrains.kotlin.android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
     
@@ -11,6 +11,7 @@ plugins {
 android {
     namespace = "com.example.chatapp_flutter"
     compileSdk = flutter.compileSdkVersion
+    //compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -19,7 +20,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        jvmTarget = "17"
     }
 
     defaultConfig {
@@ -28,6 +29,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
+        //minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -38,6 +40,7 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
@@ -46,8 +49,12 @@ flutter {
     source = "../.."
 }
 dependencies {
+
+    
   // Import the Firebase BoM
-  implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
 
 
   // TODO: Add the dependencies for Firebase products you want to use
