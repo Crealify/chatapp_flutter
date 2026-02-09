@@ -7,13 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:zego_uikit/zego_uikit.dart';
 import 'package:zego_uikit_prebuilt_call/zego_uikit_prebuilt_call.dart';
 import 'package:zego_uikit_signaling_plugin/zego_uikit_signaling_plugin.dart';
 
 import 'chat/provider/provider.dart';
 
-/// 1.1.1 define a navigator key
+// 1.1.1 define a navigator key
 final navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,32 +22,33 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await requestPermission();
 
-  //  /// 1.1.2: set navigator key to ZegoUIKitPrebuiltCallInvitationService
-  // ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
-
   final user = FirebaseAuth.instance.currentUser;
   final String userId = user?.uid ?? "000";
   final String userName = user?.displayName ?? "Guest";
-  // call the useSystemCallingUI
-  await ZegoUIKit().initLog().then((value) async {
-    await ZegoUIKitPrebuiltCallInvitationService()
-        .init(
-          appID: int.parse(dotenv.env['appID']!),
-          appSign: dotenv.env['appSign']!,
-          // appID: ZegoConfig.appID,
-          // appSign: ZegoConfig.appSign,
-          //user id must be currently login id so
-          userID: userId,
-          userName: userName,
-          plugins: [ZegoUIKitSignalingPlugin()],
-          invitationEvents: ZegoUIKitPrebuiltCallInvitationEvents(),
-        )
-        .catchError((error) {
-          print("Zego initialization error $error");
-        });
-  });
+  //  /// 1.1.2: set navigator key to ZegoUIKitPrebuiltCallInvitationService
+  ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
 
-  runApp(ProviderScope(child: ChatApp()));
+  // call the useSystemCallingUI
+  // await ZegoUIKit().initLog().then((value) async {
+  await ZegoUIKitPrebuiltCallInvitationService()
+      .init(
+        appID: int.parse(dotenv.env['appID']!),
+        // appID: ZegoConfig.appID,
+        appSign: dotenv.env['appSign']!,
+        // appSign: ZegoConfig.appSign,
+        //user id must be currently login id so
+        userID: userId,
+        userName: userName,
+        plugins: [ZegoUIKitSignalingPlugin()],
+        invitationEvents: ZegoUIKitPrebuiltCallInvitationEvents(),
+      )
+      .catchError((error) {
+        print("Zego initialization error $error");
+      });
+  // }
+  // );
+
+  runApp(ProviderScope(child: ChatApp(navigatorKey: navigatorKey)));
 }
 
 Future<void> requestPermission() async {
@@ -60,7 +60,8 @@ Future<void> requestPermission() async {
 }
 
 class ChatApp extends ConsumerStatefulWidget {
-  const ChatApp({super.key});
+  final GlobalKey<NavigatorState> navigatorKey;
+  const ChatApp({super.key, required this.navigatorKey});
 
   @override
   ConsumerState<ChatApp> createState() => _ChatappState();
@@ -76,9 +77,9 @@ class _ChatappState extends ConsumerState<ChatApp> {
       debugShowCheckedModeBanner: false,
 
       home: authState.when(
-        data: (User) {
+        data: (user) {
           // if user is logged in, go to AuthenticationWrapper
-          if (User != null) {
+          if (user != null) {
             return AuthenticationWrapper();
           } else {
             //if not logged in, goo to login screen

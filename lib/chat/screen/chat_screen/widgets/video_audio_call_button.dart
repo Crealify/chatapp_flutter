@@ -12,4 +12,5 @@ ZegoSendCallInvitationButton actionButton(
   iconSize: Size(30, 30),
   buttonSize: Size(40, 40),
   resourceID: "zego_call",
+  onPressed: (code, message, errorInvitees) {},
 );
