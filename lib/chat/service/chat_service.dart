@@ -58,6 +58,30 @@ class ChatService {
   1. send messege request
   2. accept message request
   */
+  //================= UNFRIEND Name =======================
+  Future<String> unfriendUser(String chatId, String friendId) async {
+    try {
+      final batch = _firestore.batch();
+      // delete friendship
+      batch.delete(_firestore.collection("friendships").doc(chatId));
+      // delete chat
+      batch.delete(_firestore.collection("chat").doc(chatId));
+
+      //dekete message in the chats
+      final messages = await _firestore
+          .collection("message")
+          .where('chatId', isEqualTo: chatId)
+          .get();
+
+      for (final doc in messages.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      return 'success';
+    } catch (e) {
+      return e.toString();
+    }
+  }
 
   //================= Message Request =======================
   Future<String> sendMessageRequest({
@@ -198,7 +222,7 @@ class ChatService {
   // ====================== CHAT ============
   // Add CACHING FOR CHATS
 
-  final Map<String, List<ChatModel>> _chatsCache = {};
+  // final Map<String, List<ChatModel>> _chatsCache = {};
 
   Stream<List<ChatModel>> getUserChats() {
     if (currentUserId.isEmpty) return Stream.value([]);
