@@ -146,6 +146,76 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               },
             ),
           ),
+          // ================= Message Input Bar ===============
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 10,
+              right: 10,
+              left: 10,
+              bottom: 15,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 4,
+                    spreadRadius: 1,
+                    offset: Offset(0, -1),
+                    color: Colors.grey.withAlpha(100),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // Image Pickker Button
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.image, size: 30),
+                  ),
+
+                  // ====== text field ===========
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: "Text a message...",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(width: 8),
+                  //============ Send Button =-==============
+                  FloatingActionButton(
+                    onPressed: () {},
+                    mini: true,
+                    backgroundColor: Colors.grey.shade200,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.send,
+                        color: Colors.blueAccent,
+                        size: 27,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
