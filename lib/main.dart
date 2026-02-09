@@ -29,13 +29,10 @@ void main() async {
   ZegoUIKitPrebuiltCallInvitationService().setNavigatorKey(navigatorKey);
 
   // call the useSystemCallingUI
-  // await ZegoUIKit().initLog().then((value) async {
   await ZegoUIKitPrebuiltCallInvitationService()
       .init(
         appID: int.parse(dotenv.env['appID']!),
-        // appID: ZegoConfig.appID,
         appSign: dotenv.env['appSign']!,
-        // appSign: ZegoConfig.appSign,
         //user id must be currently login id so
         userID: userId,
         userName: userName,
