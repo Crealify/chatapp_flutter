@@ -65,11 +65,11 @@ class ChatService {
       // delete friendship
       batch.delete(_firestore.collection("friendships").doc(chatId));
       // delete chat
-      batch.delete(_firestore.collection("chat").doc(chatId));
+      batch.delete(_firestore.collection("chats").doc(chatId));
 
       //dekete message in the chats
       final messages = await _firestore
-          .collection("message")
+          .collection("messages")
           .where('chatId', isEqualTo: chatId)
           .get();
 
@@ -251,7 +251,7 @@ class ChatService {
         //if you have user orderBt and where on same collection then you need to add a indexing
         .collection('messages')
         .where('chatId', isEqualTo: chatId)
-        .orderBy("timestamp ", descending: true)
+        .orderBy("timestamp", descending: true)
         .limit(limit);
     if (lastDocument != null) {
       query = query.startAfterDocument(lastDocument);
