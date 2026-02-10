@@ -23,20 +23,35 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final ImagePicker _imagePicker = ImagePicker();
-  bool _isuploadingImage = false;
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
+  bool _isUploadingImage = false;
 
   //send text message
   Future<void> _sendMessage() async {
     final message = _messageController.text.trim();
     if (message.isEmpty) return;
     _messageController.clear();
+    // reset the flage to allow marking as read for response
+
+    final chatService = ref.read(chatServiceProvider);
+    final result = await chatService.sendMessage(
+      chatId: widget.chatId,
+      message: message,
+    );
+
+    if (result != 'success') {
+      showAppSnackbar(
+        context: context,
+        type: SnackbarType.error,
+        description: "Failed to send message: $result",
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -102,6 +117,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       body: Column(
         children: [
           Expanded(
+            //============ message section ==================
             child: StreamBuilder(
               stream: chatService.getChatMessages(widget.chatId),
               builder: (context, snapshot) {
@@ -161,10 +177,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               ),
                             ),
                           )
-                        // displa the text message and  image
-                        else if (message.type == "call")
+                        //display the audio and video call history
+                        else if (message.type == 'call')
                           Container()
                         else
+                          //display the text messaage and
                           MessageAndInageDisplay(
                             isMe: isMe,
                             widget: widget,
@@ -234,14 +251,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     SizedBox(width: 8),
                     //============ Send Button =-==============
                     FloatingActionButton(
-                      onPressed: _isuploadingImage ? null : _sendMessage,
+                      onPressed: _isUploadingImage ? null : _sendMessage,
                       mini: true,
                       backgroundColor: Colors.white,
                       elevation: 0,
 
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
-                        child: _isuploadingImage
+                        child: _isUploadingImage
                             ? SizedBox(
                                 width: 20,
                                 height: 20,

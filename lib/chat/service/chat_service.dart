@@ -266,4 +266,50 @@ class ChatService {
       return docs;
     });
   }
+
+  //====== send chat messgae ==============
+  Future<String> sendMessage({
+    required String chatId,
+    required String message,
+  }) async {
+    try {
+      final currentUser = _auth.currentUser!;
+      final messageId = _firestore.collection("messages").doc().id;
+      final batch = _firestore.batch();
+
+      //=================== user Server timestamp for cconsistency across devices ================
+      batch.set(_firestore.collection("messages").doc(messageId), {
+        'messageId': messageId,
+        'senderId': currentUserId,
+        'senderName': currentUser.displayName ?? "User",
+        'message': message,
+        'timestamp': FieldValue.serverTimestamp(),
+        'readBy': {},
+        'chatId': chatId,
+        'type': 'user',
+      });
+
+      final chatDoc = await _firestore.collection("chats").doc(chatId).get();
+      if (!chatDoc.exists) {
+        return "Chat not found";
+      }
+      final chatData = chatDoc.data()!;
+      final participants = List<String>.from(chatData['participants']);
+      final otherUserId = participants.firstWhere((id) => id != currentUserId);
+
+      batch.update(_firestore.collection("chats").doc(chatId), {
+        'lastMessage': message,
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'lastSenderId': currentUserId,
+        'unreadCount.$otherUserId': FieldValue.increment(1),
+        'unreadCount.$otherUserId': 0,
+      });
+
+      await batch.commit();
+      return 'success';
+    } catch (e) {
+      print("Error Sending message: $e");
+      return e.toString();
+    }
+  }
 }

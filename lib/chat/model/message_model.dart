@@ -13,7 +13,7 @@ class MessageModel {
   final String? imageUrl; //ADD THIS FIELD FOR IMAGE
   final String? callType; // AUDIO CALL OR VIDEO CALL
   final String? callStatus;
-  final int? duration;
+  // final int? duration;
   MessageModel({
     required this.messageId,
     required this.senderId,
@@ -25,12 +25,13 @@ class MessageModel {
     this.imageUrl,
     this.callType,
     this.callStatus,
-    this.duration,
+    // this.duration,
   });
 
-/// CONVERT BACK TO FIRESTORE MAP
+  /// CONVERT BACK TO FIRESTORE MAP
   Map<String, dynamic> toMap() {
-    return <String, dynamic>{
+    // return<String, dynamic>{
+    return {
       'messageId': messageId,
       'senderId': senderId,
       'senderName': senderName,
@@ -75,8 +76,8 @@ class MessageModel {
                 ? (map['timestamp'] as Timestamp).toDate()
                 : map['timestamp'] is DateTime
                 ? map['timestamp'] as DateTime
-                : null)
-          : null,
+                : null) //keep as null instead of DateTime.now
+          : null, //keep as null
 
       readyBy: Map<String, DateTime>.from(
         (map['readyBy'] as Map<String, dynamic>?)?.map(

@@ -49,7 +49,7 @@ class MessageAndInageDisplay extends StatelessWidget {
                 vertical: message.type == "image" ? 4 : 10,
               ),
               decoration: BoxDecoration(
-                color: isMe ? Colors.white : Colors.grey[300],
+                color: isMe ? Colors.blue : Colors.grey[300],
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
@@ -68,7 +68,8 @@ class MessageAndInageDisplay extends StatelessWidget {
                   SizedBox(height: 4),
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    // crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
                         formatedMessageTime(message.timestamp),
@@ -77,21 +78,18 @@ class MessageAndInageDisplay extends StatelessWidget {
                           color: isMe ? Colors.white : Colors.black,
                         ),
                       ),
-                      if(isMe)...[
-                        SizedBox(
-                          width:4
-                        )
+                      if (isMe) ...[
+                        SizedBox(width: 4),
+
                         //======= Message Status ==========
-
-
-                      ]
+                      ],
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          if(isMe)const SizedBox(),
+          if (isMe) const SizedBox(),
         ],
       ),
     );
