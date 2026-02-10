@@ -25,6 +25,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ImagePicker _imagePicker = ImagePicker();
   bool _isuploadingImage = false;
 
+  @override
+  void dispose() {
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   //send text message
   Future<void> _sendMessage() async {
     final message = _messageController.text.trim();
@@ -203,6 +210,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     // ====== text field ===========
                     Expanded(
                       child: TextField(
+                        controller: _messageController,
                         decoration: InputDecoration(
                           hintText: "Text a message...",
                           border: OutlineInputBorder(
@@ -226,18 +234,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     SizedBox(width: 8),
                     //============ Send Button =-==============
                     FloatingActionButton(
-                      onPressed: () {},
+                      onPressed: _isuploadingImage ? null : _sendMessage,
                       mini: true,
                       backgroundColor: Colors.white,
                       elevation: 0,
 
                       child: Padding(
                         padding: const EdgeInsets.all(4.0),
-                        child: Icon(
-                          Icons.send,
-                          color: Colors.blueAccent,
-                          size: 27,
-                        ),
+                        child: _isuploadingImage
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Icon(
+                                Icons.send,
+                                color: Colors.blueAccent,
+                                size: 27,
+                              ),
                       ),
                     ),
                   ],

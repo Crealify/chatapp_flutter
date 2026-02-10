@@ -81,8 +81,9 @@ class MessageAndInageDisplay extends StatelessWidget {
                         SizedBox(
                           width:4
                         )
-                        //======= Message Status Icons
-                        
+                        //======= Message Status ==========
+
+
                       ]
                     ],
                   ),
@@ -90,6 +91,7 @@ class MessageAndInageDisplay extends StatelessWidget {
               ),
             ),
           ),
+          if(isMe)const SizedBox(),
         ],
       ),
     );
