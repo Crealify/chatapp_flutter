@@ -56,6 +56,51 @@ class MessageAndInageDisplay extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   // Image to display
+                  if (message.type == 'image' && message.imageUrl != null) ...[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: Container(
+                          constraints: BoxConstraints(
+                            maxWidth: 250,
+                            maxHeight: 300,
+                          ),
+                          child: Image.network(
+                            message.imageUrl!,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return SizedBox(
+                                height: 200,
+                                child: CircularProgressIndicator(
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                            loadingProgress.expectedTotalBytes!
+                                      : null,
+                                ),
+                              );
+                            },
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 200,
+                                color: Colors.grey[300],
+                                child: Icon(
+                                  Icons.broken_image_rounded,
+                                  size: 50,
+                                  color: Colors.grey,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      
+                    ),
+                    if(message.message.isNotEmpty)const SizedBox(height: 8,),
+                  ],
+
                   //Text message(for regular message or image capitons)
                   if (message.message.isNotEmpty)
                     Text(

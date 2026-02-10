@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chatapp_flutter/chat/model/message_model.dart';
 import 'package:chatapp_flutter/chat/model/message_request_model.dart';
 import 'package:chatapp_flutter/chat/model/user_model.dart';
@@ -277,7 +279,7 @@ class ChatService {
       final messageId = _firestore.collection("messages").doc().id;
       final batch = _firestore.batch();
 
-      //=================== user Server timestamp for cconsistency across devices ================
+      //==========user Server timestamp for cconsistency across devices =========
       batch.set(_firestore.collection("messages").doc(messageId), {
         'messageId': messageId,
         'senderId': currentUserId,
@@ -311,5 +313,99 @@ class ChatService {
       print("Error Sending message: $e");
       return e.toString();
     }
+  }
+
+  //================= iMAGE MESSAGE =======================
+  Future<String> uploadImage(File imageFile, String ChatId) async {
+    try {
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_$currentUserId.jpg';
+      final storageRef = FirebaseStoreage.instance
+          .ref()
+          .child('chat_images')
+          .child(ChatId)
+          .child(fileName);
+      final uploadTask = storageRef.putFile(imageFile);
+      final snapshot = await uploadTask.whenComplete(() {});
+      final downloadUrl = await snapshot.ref.getDownloadUrl();
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading image :$e');
+      return '';
+    }
+  }
+
+  //send image Message
+  Future<String> sendImageMessage({
+    required String chatId,
+    required String imageUrl,
+    String? caption,
+  }) async {
+    try {
+      final currentUser = _auth.currentUser!;
+      final messageId = _firestore.collection('messages').doc().id;
+      final batch = _firestore.batch();
+
+      //create image messages
+      batch.set(_firestore.collection("messages").doc(messageId), {
+        'messageId': messageId,
+        'senderId': currentUserId,
+        'senderName': currentUser.displayName ?? "User",
+        'message': caption ?? "",
+        'imageUrl': imageUrl,
+        'timestamp': FieldValue.serverTimestamp(),
+        'readBy': {},
+        'chatId': chatId,
+        'type': 'image',
+      });
+      //============ Update Chat with latest message==========
+      final chatDoc = await _firestore.collection("chats").doc(chatId).get();
+      if (!chatDoc.exists) {
+        return "Chat not found";
+      }
+      final chatData = chatDoc.data()!;
+      final participants = List<String>.from(chatData['participants']);
+      final otherUserId = participants.firstWhere((id) => id != currentUserId);
+
+      batch.update(_firestore.collection("chats").doc(chatId), {
+        'lastMessage': caption?.isNotEmpty == true ? caption : 'Photo',
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'lastSenderId': currentUserId,
+        'unreadCount.$otherUserId': FieldValue.increment(1),
+        'unreadCount.$otherUserId': 0,
+      });
+
+      await batch.commit();
+      return 'success';
+    } catch (e) {
+      print('Error sending image message: $e');
+      return e.toString();
+    }
+  }
+
+  Future<String> sendImageWithUpload({
+    required String chatId,
+    required String imageUrl,
+    String? caption,
+  }) {
+    try {
+      final currentUser = _auth.currentUser!;
+      final messageId = _firestore.collection('messages').doc().id;
+      final batch = _firestore.batch();
+
+      //================= Create image message =====================
+      batch.set(_firestore.collection("messages").doc(messageId), {
+        'messageId': messageId,
+        'senderId': currentUserId,
+        'senderName': currentUser.displayName ?? "User",
+        'message': caption ?? '',
+        'imageUrl': imageUrl,
+        'timestamp': FieldValue.serverTimestamp(),
+        'readBy': {},
+        'chatId': chatId,
+        'type': 'user',
+      });
+
+    } catch (e) {}
   }
 }
