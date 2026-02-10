@@ -1,3 +1,4 @@
+import 'package:chatapp_flutter/core/utils/time_format.dart';
 import 'package:flutter/material.dart';
 
 import '../../../model/message_model.dart';
@@ -64,14 +65,27 @@ class MessageAndInageDisplay extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(height: 4,),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children:
-                       [
-                      ],
-                    )
+                  SizedBox(height: 4),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        formatedMessageTime(message.timestamp),
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: isMe ? Colors.white : Colors.black,
+                        ),
+                      ),
+                      if(isMe)...[
+                        SizedBox(
+                          width:4
+                        )
+                        //======= Message Status Icons
+                        
+                      ]
+                    ],
+                  ),
                 ],
               ),
             ),

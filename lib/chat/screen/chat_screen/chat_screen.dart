@@ -1,5 +1,6 @@
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:chatapp_flutter/chat/provider/provider.dart';
+import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/message_and_inage_display.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/user_chat_profile.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/video_audio_call_button.dart';
 
@@ -7,6 +8,7 @@ import 'package:chatapp_flutter/core/utils/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String chatId;
@@ -18,6 +20,18 @@ class ChatScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final ImagePicker _imagePicker = ImagePicker();
+  bool _isuploadingImage = false;
+
+  //send text message
+  Future<void> _sendMessage() async {
+    final message = _messageController.text.trim();
+    if (message.isEmpty) return;
+    _messageController.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatService = ref.read(chatServiceProvider);
@@ -109,6 +123,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 //================ Build Message List =============
                 return ListView.builder(
                   reverse: true,
+                  controller: _scrollController,
                   itemCount: messages.length,
                   itemBuilder: (context, index) {
                     final message = messages[index];
@@ -143,7 +158,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         else if (message.type == "call")
                           Container()
                         else
-                          (Container()),
+                          MessageAndInageDisplay(
+                            isMe: isMe,
+                            widget: widget,
+                            message: message,
+                          ),
                       ],
                     );
                   },
@@ -197,6 +216,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             vertical: 10,
                           ),
                         ),
+                        maxLength: null,
+                        onSubmitted: (value) => _sendMessage(),
+                        // onChanged: ,
+                        // onTap: ,
                       ),
                     ),
 
