@@ -5,6 +5,7 @@ import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/call_history.dar
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/message_and_inage_display.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/user_chat_profile.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/video_audio_call_button.dart';
+import 'package:chatapp_flutter/core/helper/data_time_helper.dart';
 import 'package:chatapp_flutter/core/utils/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -170,6 +171,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     final isSystem = message.type == "system";
                     final isVideo = message.callType == 'vidoe';
                     final isMissed = message.callStatus == 'missed';
+                    final showDateHeader = shouldShowDateHeader(
+                      messages,
+                      index,
+                    );
                     return Column(
                       children: [
                         //system generate message when you are friend
@@ -204,11 +209,39 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             message: message,
                           )
                         else
-                          //display the text messaage and
+                          //display the text messaage and image
                           MessageAndInageDisplay(
                             isMe: isMe,
                             widget: widget,
                             message: message,
+                          ),
+                        // show the date on message
+                        if (showDateHeader)
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 16),
+                            child: Row(
+                              children: [
+                                Expanded(child: Divider()),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    formatDateHeader(message.timestamp),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                       ],
                     );
