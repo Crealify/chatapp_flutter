@@ -68,10 +68,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         // in appbar acitions: we will implemet video and audion call feature
         actions: [
           //audio call
-          actionButton(false, widget.otherUser.uid, widget.otherUser.name),
+          actionButton(
+            false,
+            widget.otherUser.uid,
+            widget.otherUser.name,
+            ref,
+            widget.chatId,
+          ),
 
           //video call
-          actionButton(true, widget.otherUser.uid, widget.otherUser.name),
+          actionButton(
+            true,
+            widget.otherUser.uid,
+            widget.otherUser.name,
+            ref,
+            widget.chatId,
+          ),
 
           //popup mrnu-> unfried option
           PopupMenuButton(

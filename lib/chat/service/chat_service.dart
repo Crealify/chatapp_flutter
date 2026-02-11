@@ -426,4 +426,32 @@ class ChatService {
       caption: caption,
     );
   }
+
+  //=============== Call History ==================
+  Future<String> addCallHistory({
+    required String chatId,
+    required bool isVideoCall,
+    required String callStatus,
+    int? duration,
+  }) async {
+    try {
+      final currentUser = _auth.currentUser!;
+      final messageId = _firestore.collection("messages").doc().id;
+      await _firestore.collection('messages').doc(messageId).set({
+        'messageId': messageId,
+        'senderId': currentUserId,
+        'senderName': currentUser.displayName ?? "User",
+        'message': isVideoCall ? 'Video Call' : "Audio Call",
+        'callType': isVideoCall ? 'video' : "audio",
+        'timestamp': FieldValue.serverTimestamp(),
+        "callStatus": callStatus,
+        'readBy': {},
+        'chatId': chatId,
+        'type': 'image',
+      });
+      return 'success';
+    } catch (e) {
+      return e.toString();
+    }
+  }
 }
