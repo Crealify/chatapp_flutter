@@ -1,3 +1,4 @@
+import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/image_full_screen.dart';
 import 'package:chatapp_flutter/core/utils/time_format.dart';
 import 'package:flutter/material.dart';
 
@@ -60,7 +61,8 @@ class MessageAndInageDisplay extends StatelessWidget {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () =>
+                            showFullScreenImage(message.imageUrl!, context),
                         child: Container(
                           constraints: BoxConstraints(
                             maxWidth: 250,
@@ -96,9 +98,8 @@ class MessageAndInageDisplay extends StatelessWidget {
                           ),
                         ),
                       ),
-                      
                     ),
-                    if(message.message.isNotEmpty)const SizedBox(height: 8,),
+                    if (message.message.isNotEmpty) const SizedBox(height: 8),
                   ],
 
                   //Text message(for regular message or image capitons)

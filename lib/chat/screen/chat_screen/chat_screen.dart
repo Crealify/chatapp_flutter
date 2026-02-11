@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:chatapp_flutter/chat/provider/provider.dart';
+import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/call_history.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/message_and_inage_display.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/user_chat_profile.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/video_audio_call_button.dart';
@@ -167,6 +168,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         message.senderId ==
                         FirebaseAuth.instance.currentUser!.uid;
                     final isSystem = message.type == "system";
+                    final isVideo = message.callType == 'vidoe';
+                    final isMissed = message.callStatus == 'missed';
                     return Column(
                       children: [
                         //system generate message when you are friend
@@ -192,7 +195,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           )
                         //display the audio and video call history
                         else if (message.type == 'call')
-                          Container()
+                          // Container()
+                          CallHistory(
+                            isMe: isMe,
+                            widget: widget,
+                            isMissed: isMissed,
+                            isVideo: isVideo,
+                            message: message,
+                          )
                         else
                           //display the text messaage and
                           MessageAndInageDisplay(
