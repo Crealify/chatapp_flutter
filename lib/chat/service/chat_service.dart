@@ -4,7 +4,9 @@ import 'package:chatapp_flutter/chat/model/message_model.dart';
 import 'package:chatapp_flutter/chat/model/message_request_model.dart';
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../../core/utils/chat_id.dart';
 import '../model/chat_model.dart';
@@ -315,22 +317,45 @@ class ChatService {
     }
   }
 
-  //================= iMAGE MESSAGE =======================
-  Future<String> uploadImage(File imageFile, String ChatId) async {
+  // //================= iMAGE MESSAGE =======================
+  // Future<String> uploadImage(File imageFile, String ChatId) async {
+  //   try {
+  //     final fileName =
+  //         '${DateTime.now().millisecondsSinceEpoch}_$currentUserId.jpg';
+  //     final storageRef = FirebaseStorage.instance
+  //         .ref()
+  //         .child('chat_images')
+  //         .child(ChatId)
+  //         .child(fileName);
+  //     final uploadTask = storageRef.putFile(imageFile);
+  //     final snapshot = await uploadTask.whenComplete(() {});
+  //     final downloadUrl = await snapshot.ref.getDownloadURL();
+  //     return downloadUrl;
+  //   } catch (e) {
+  //     print('Error uploading image :$e');
+  //     return '';
+  //   }
+  // }
+  //================= IMAGE MESSAGE (Cloudinary) =======================
+  Future<String> uploadImage(File imageFile, String chatId) async {
     try {
-      final fileName =
-          '${DateTime.now().millisecondsSinceEpoch}_$currentUserId.jpg';
-      final storageRef = FirebaseStoreage.instance
-          .ref()
-          .child('chat_images')
-          .child(ChatId)
-          .child(fileName);
-      final uploadTask = storageRef.putFile(imageFile);
-      final snapshot = await uploadTask.whenComplete(() {});
-      final downloadUrl = await snapshot.ref.getDownloadUrl();
-      return downloadUrl;
+      final cloudinary = CloudinaryPublic(
+        dotenv.env['CLOUDINARY_CLOUD_NAME']!,
+        dotenv.env['CLOUDINARY_UPLOAD_PRESET_CHAT_IMAGS']!,
+        cache: false,
+      );
+
+      final response = await cloudinary.uploadFile(
+        CloudinaryFile.fromFile(
+          imageFile.path,
+          resourceType: CloudinaryResourceType.Image,
+          folder: "chatapp_flutter/chat_images/$chatId",
+        ),
+      );
+
+      return response.secureUrl;
     } catch (e) {
-      print('Error uploading image :$e');
+      print('Error uploading image to Cloudinary: $e');
       return '';
     }
   }
@@ -385,27 +410,20 @@ class ChatService {
 
   Future<String> sendImageWithUpload({
     required String chatId,
-    required String imageUrl,
+    required File imageFile,
     String? caption,
-  }) {
-    try {
-      final currentUser = _auth.currentUser!;
-      final messageId = _firestore.collection('messages').doc().id;
-      final batch = _firestore.batch();
+  }) async {
+    // upload image first
+    final imageUrl = await uploadImage(imageFile, chatId);
+    if (imageUrl.isEmpty) {
+      return 'Failed to upload image';
+    }
 
-      //================= Create image message =====================
-      batch.set(_firestore.collection("messages").doc(messageId), {
-        'messageId': messageId,
-        'senderId': currentUserId,
-        'senderName': currentUser.displayName ?? "User",
-        'message': caption ?? '',
-        'imageUrl': imageUrl,
-        'timestamp': FieldValue.serverTimestamp(),
-        'readBy': {},
-        'chatId': chatId,
-        'type': 'user',
-      });
-
-    } catch (e) {}
+    //========== Send image message ===================
+    return await sendImageMessage(
+      chatId: chatId,
+      imageUrl: imageUrl,
+      caption: caption,
+    );
   }
 }

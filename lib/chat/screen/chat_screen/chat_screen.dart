@@ -1,12 +1,13 @@
+import 'dart:io';
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:chatapp_flutter/chat/provider/provider.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/message_and_inage_display.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/user_chat_profile.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/video_audio_call_button.dart';
-
 import 'package:chatapp_flutter/core/utils/snackbar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -220,8 +221,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   children: [
                     // Image Pickker Button
                     IconButton(
-                      onPressed: () {},
-                      icon: Icon(Icons.image, size: 30),
+                      //last work do here
+                      // onPressed: () {},
+                      onPressed: _isUploadingImage
+                          ? null
+                          : () => _showImageOptions(),
+                      icon: Icon(
+                        Icons.image,
+                        size: 30,
+                        color: _isUploadingImage ? Colors.grey : Colors.blue,
+                      ),
                     ),
 
                     // ====== text field ===========
@@ -281,5 +290,163 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ],
       ),
     );
+  }
+
+  // image handlilng methods
+  // has methods isfor image picker
+  void _showImageOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+
+          children: [
+            ListTile(
+              leading: Icon(Icons.camera_alt),
+              title: Text("Take Photo"),
+              onTap: () {
+                Navigator.pop(context);
+
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_library),
+              title: Text("Choose from Gallery"),
+              onTap: () {
+                Navigator.pop(context);
+
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.cancel),
+              title: Text("Cancel"),
+              onTap: () => Navigator.pop(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: source,
+        maxWidth: 1920,
+        imageQuality: 85,
+      );
+      if (pickedFile != null) {
+        final File imageFile = File(pickedFile.path);
+        // image preview
+        await _showImagePreview(imageFile);
+      }
+    } catch (e) {
+      if (mounted) {
+        showAppSnackbar(
+          context: context,
+          type: SnackbarType.error,
+          description: "Error Picking Image: $e",
+        );
+      }
+    }
+  }
+
+  //========= preview image before sending ================
+  Future<void> _showImagePreview(File imageFile) async {
+    final TextEditingController captionController = TextEditingController();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        contentPadding: EdgeInsets.all(16),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              constraints: BoxConstraints(maxHeight: 300),
+              child: Image.file(imageFile, fit: BoxFit.contain),
+            ),
+
+            SizedBox(height: 16),
+            TextField(
+              controller: captionController,
+              decoration: InputDecoration(
+                hintText: "Add a Caption (Optional)",
+                border: OutlineInputBorder(),
+              ),
+              maxLength: 100,
+              maxLines: 1,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text("Send"),
+          ),
+        ],
+      ),
+    );
+    if (result == true) {
+      await _sendImageMessae(imageFile, captionController.text);
+    }
+  }
+
+  // send image to firestore/Cloudinary
+
+  Future<void> _sendImageMessae(File imageFile, String caption) async {
+    setState(() {
+      _isUploadingImage = true;
+    });
+    try {
+      final ChatService = ref.read(chatServiceProvider);
+
+      final result = await ChatService.sendImageWithUpload(
+        chatId: widget.chatId,
+        imageFile: imageFile,
+        caption: caption.isEmpty ? null : caption,
+      );
+
+      if (result == 'success') {
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          if (_scrollController.hasClients) {
+            _scrollController.animateTo(
+              0.0,
+              duration: Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
+        });
+      } else {
+        if (mounted) {
+          showAppSnackbar(
+            context: context,
+            type: SnackbarType.error,
+            description: "Field to Send Image: $result",
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showAppSnackbar(
+          context: context,
+          type: SnackbarType.error,
+          description: "Field to Send Image: $e",
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploadingImage = false;
+        });
+      }
+    }
   }
 }
