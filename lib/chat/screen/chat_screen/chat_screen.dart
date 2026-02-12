@@ -49,6 +49,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         description: "Failed to send message: $result",
       );
     }
+
+    //================ Auto Scroll  to the bottom ===============
+    WidgetsBinding.instance.addPersistentFrameCallback((timeStamp) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          0.0,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   Timer? _readStatusTimer;
@@ -62,6 +73,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       unreadMessagesIds.clear();
     });
   }
+  // auto
 
   @override
   void dispose() {
