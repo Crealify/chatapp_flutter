@@ -3,6 +3,7 @@ import 'package:chatapp_flutter/chat/provider/provider.dart';
 import 'package:chatapp_flutter/chat/provider/user_status_provider.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/chat_screen.dart';
 import 'package:chatapp_flutter/chat/screen/request_screen.dart';
+import 'package:chatapp_flutter/core/utils/time_format.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -130,8 +131,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                         FirebaseAuth.instance.currentUser?.uid;
                     if (currentUserId == null) return SizedBox();
                     // count unread message
+                    final unreadCount = chat.unreadCount[currentUserId] ?? 0;
 
                     // show unread higlight if other user sent message
+                    final shouldShowUnread =
+                        unreadCount > 0 && chat.lastSenderId != currentUserId;
 
                     return ListTile(
                       // user profile+ onlline offline status
@@ -178,11 +182,52 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                         ],
                       ),
                       // Name of the user
-                      title: Text(otherUser.name),
+                      title: Text(
+                        otherUser.name,
+                        style: TextStyle(
+                          fontWeight: shouldShowUnread
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
+                      ),
                       subtitle: Text(
-                        "You can now start to chat",
+                        chat.lastMessage.isNotEmpty
+                            ? chat.lastMessage
+                            : "You can now start to chat",
+                        style: TextStyle(
+                          fontWeight: shouldShowUnread
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            formatTime(chat.lastMessageTime),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: shouldShowUnread
+                                  ? Colors.blue
+                                  : Colors.grey,
+                            ),
+                          ),
+                          if (shouldShowUnread)
+                            Container(
+                              margin: EdgeInsets.only(top: 4),
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Text(
+                                '$unreadCount',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                        ],
                       ),
                       onTap: () => NavigationHelper.push(
                         context,
