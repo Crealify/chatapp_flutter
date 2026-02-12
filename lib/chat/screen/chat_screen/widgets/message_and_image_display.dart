@@ -1,4 +1,5 @@
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/image_full_screen.dart';
+import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/message_status.dart';
 import 'package:chatapp_flutter/core/utils/time_format.dart';
 import 'package:flutter/material.dart';
 
@@ -46,15 +47,16 @@ class MessageAndInageDisplay extends StatelessWidget {
           Flexible(
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: message.type == "image" ? 8 : 10,
-                vertical: message.type == "image" ? 4 : 10,
+                horizontal: message.type == "image" ? 0 : 10,
+                vertical: message.type == "image" ? 0 : 10,
               ),
               decoration: BoxDecoration(
                 color: isMe ? Colors.blue : Colors.grey[300],
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                // mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Image to display
                   if (message.type == 'image' && message.imageUrl != null) ...[
@@ -88,10 +90,12 @@ class MessageAndInageDisplay extends StatelessWidget {
                               return Container(
                                 height: 200,
                                 color: Colors.grey[300],
-                                child: Icon(
-                                  Icons.broken_image_rounded,
-                                  size: 50,
-                                  color: Colors.grey,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.broken_image_rounded,
+                                    size: 50,
+                                    color: Colors.grey,
+                                  ),
                                 ),
                               );
                             },
@@ -110,26 +114,38 @@ class MessageAndInageDisplay extends StatelessWidget {
                         color: isMe ? Colors.white : Colors.black,
                       ),
                     ),
-
                   SizedBox(height: 4),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    // crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        formatedMessageTime(message.timestamp),
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: isMe ? Colors.white : Colors.black,
+                  Padding(
+                    padding: message.type == "image"
+                        ? const EdgeInsets.only(left: 20, bottom: 5)
+                        : EdgeInsets.zero,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      // crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Text(
+                          formatedMessageTime(message.timestamp),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: isMe
+                                ? const Color.fromARGB(255, 37, 33, 33)
+                                : Colors.black,
+                          ),
                         ),
-                      ),
-                      if (isMe) ...[
-                        SizedBox(width: 4),
+                        if (isMe) ...[
+                          SizedBox(width: 4),
 
-                        //======= Message Status ==========
+                          //======= Message Status ==========
+                          // now lets work on message statuus which is -message delivered
+                          // marked as read, unread message count
+                          buildMessagesStatusIcon(
+                            message,
+                            widget.otherUser.uid,
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ],
               ),

@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:chatapp_flutter/chat/model/user_model.dart';
 import 'package:chatapp_flutter/chat/provider/provider.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/call_history.dart';
-import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/message_and_inage_display.dart';
+import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/message_and_image_display.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/user_chat_profile.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/video_audio_call_button.dart';
 import 'package:chatapp_flutter/core/helper/data_time_helper.dart';
@@ -50,10 +51,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
+  Timer? _readStatusTimer;
+  List<String> unreadMessagesIds = [];
+  //message read handler
+  Future<void> _markAsRead() async {
+    _readStatusTimer?.cancel();
+    _readStatusTimer = Timer(Duration(milliseconds: 500), () async {
+      final ChatService = ref.read(chatServiceProvider);
+      await ChatService.markMessageAsRead(widget.chatId);
+      unreadMessagesIds.clear();
+    });
+  }
+
   @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _readStatusTimer?.cancel();
     super.dispose();
   }
 
@@ -147,6 +161,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 final messages = snapshot.data ?? [];
                 if (snapshot.hasData && messages.isNotEmpty) {
                   final currentUserId = FirebaseAuth.instance.currentUser!.uid;
+                  final hasUnreadMessges = messages.any(
+                    (msg) =>
+                        msg.senderId != currentUserId &&
+                        !(msg.readyBy?.containsKey(currentUserId) ?? false),
+                  );
+                  if (hasUnreadMessges) {
+                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                      _markAsRead();
+                    });
+                  }
                 }
                 //============ empty chat ui =================
 
@@ -224,7 +248,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 Expanded(child: Divider()),
                                 Container(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: 18,
+                                    horizontal: 16,
                                     vertical: 8,
                                   ),
                                   decoration: BoxDecoration(
@@ -236,10 +260,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.grey,
+                                      color: Colors.grey[600],
                                     ),
                                   ),
                                 ),
+                                Expanded(child: Divider()),
                               ],
                             ),
                           ),
@@ -251,94 +276,90 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             ),
           ),
           // ================= Message Input Bar ===============
-          Padding(
+          Container(
             padding: const EdgeInsets.only(
               top: 5,
-              right: 1,
-              left: 1,
-              bottom: 10,
+              right: 10,
+              left: 10,
+              bottom: 15,
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 4,
-                    spreadRadius: 1,
-                    offset: Offset(0, -5),
-                    color: Colors.grey.withAlpha(100),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                  offset: Offset(0, -5),
+                  color: Colors.grey.withAlpha(100),
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  // Image Pickker Button
+                  IconButton(
+                    //last work do here
+                    // onPressed: () {},
+                    onPressed: _isUploadingImage
+                        ? null
+                        : () => _showImageOptions(),
+                    icon: Icon(
+                      Icons.image,
+                      size: 30,
+                      color: _isUploadingImage ? Colors.grey : Colors.blue,
+                    ),
+                  ),
+
+                  // ====== text field ===========
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        hintText: "Text a message...",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 10,
+                        ),
+                      ),
+                      maxLength: null,
+                      onSubmitted: (value) => _sendMessage(),
+                      // onChanged: ,
+                      // onTap: ,
+                    ),
+                  ),
+
+                  SizedBox(width: 8),
+                  //============ Send Button =-==============
+                  FloatingActionButton(
+                    onPressed: _isUploadingImage ? null : _sendMessage,
+                    mini: true,
+                    backgroundColor: Colors.white,
+                    elevation: 0,
+
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: _isUploadingImage
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              Icons.send,
+                              color: Colors.blueAccent,
+                              size: 27,
+                            ),
+                    ),
                   ),
                 ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    // Image Pickker Button
-                    IconButton(
-                      //last work do here
-                      // onPressed: () {},
-                      onPressed: _isUploadingImage
-                          ? null
-                          : () => _showImageOptions(),
-                      icon: Icon(
-                        Icons.image,
-                        size: 30,
-                        color: _isUploadingImage ? Colors.grey : Colors.blue,
-                      ),
-                    ),
-
-                    // ====== text field ===========
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          hintText: "Text a message...",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: BorderSide.none,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey[100],
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 10,
-                          ),
-                        ),
-                        maxLength: null,
-                        onSubmitted: (value) => _sendMessage(),
-                        // onChanged: ,
-                        // onTap: ,
-                      ),
-                    ),
-
-                    SizedBox(width: 8),
-                    //============ Send Button =-==============
-                    FloatingActionButton(
-                      onPressed: _isUploadingImage ? null : _sendMessage,
-                      mini: true,
-                      backgroundColor: Colors.white,
-                      elevation: 0,
-
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: _isUploadingImage
-                            ? SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Icon(
-                                Icons.send,
-                                color: Colors.blueAccent,
-                                size: 27,
-                              ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ),

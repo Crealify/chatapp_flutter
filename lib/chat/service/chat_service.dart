@@ -226,7 +226,7 @@ class ChatService {
   // ====================== CHAT ============
   // Add CACHING FOR CHATS
 
-  // final Map<String, List<ChatModel>> _chatsCache = {};
+  final Map<String, List<ChatModel>> _chatsCache = {};
 
   Stream<List<ChatModel>> getUserChats() {
     if (currentUserId.isEmpty) return Stream.value([]);
@@ -452,6 +452,40 @@ class ChatService {
       return 'success';
     } catch (e) {
       return e.toString();
+    }
+  }
+
+  //=============== Mark Message As Read(message status) ==================
+  Future<void> markMessageAsRead(String chatId) async {
+    final currentUser = _auth.currentUser;
+    if (currentUser == null) return;
+    try {
+      final batch = _firestore.batch();
+      //reset unread count first
+      final chatRef = _firestore.collection("chats").doc(chatId);
+      batch.update(chatRef, {
+        "unreadCount.${currentUser.uid}": 0,
+        //add timestamp to force listeners to update
+        "lastReadTime.${currentUser.uid}": FieldValue.serverTimestamp(),
+      });
+      // then update individual messages
+      final messagesQuery = await _firestore
+          .collection('messages')
+          .where('chatId', isEqualTo: chatId)
+          .where('senderId', isNotEqualTo: currentUser.uid)
+          .where('readBy.${currentUser.uid}', isEqualTo: null)
+          .get();
+
+      for (var doc in messagesQuery.docs) {
+        batch.update(doc.reference, {
+          'readBy.${currentUser.uid}': FieldValue.serverTimestamp(),
+        });
+      }
+      await batch.commit();
+      // ============= clear all caches to ensure fresh data==========
+      _chatsCache.cast();
+    } catch (e) {
+      print("Error Marking Messaege as Read: $e");
     }
   }
 }

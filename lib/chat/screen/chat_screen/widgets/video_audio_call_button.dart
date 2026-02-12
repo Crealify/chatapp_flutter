@@ -1,5 +1,4 @@
 import 'package:chatapp_flutter/chat/provider/provider.dart';
-import 'package:chatapp_flutter/chat/service/chat_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zego_uikit/zego_uikit.dart';
