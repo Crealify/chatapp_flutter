@@ -162,3 +162,44 @@ final filteredUsersProvider = Provider<AsyncValue<List<UserModel>>>((ref) {
     loading: () => AsyncValue.loading(),
   );
 });
+
+//==================== Typing Indicator ===================
+class TypingNotifier extends StateNotifier<Map<String, bool>> {
+  final ChatService _chatService;
+  StreamSubscription<Map<String, bool>>? _subscription;
+  final String chatId;
+
+  TypingNotifier(this._chatService, this.chatId) : super({}) {
+    _listenTotTypingStatus();
+  }
+
+  void _listenTotTypingStatus() {
+    _subscription?.cancel();
+    _subscription = _chatService
+        .getTypingStatus(chatId)
+        .listen(
+          (typingData) => state = Map<String, bool>.from(typingData),
+          onError: (error, stackTrace) => state = {},
+        );
+  }
+
+  Future<void> setTyping(bool isTyping) async {
+    await _chatService.setTypingStatus(chatId, isTyping);
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+
+    super.dispose();
+  }
+}
+
+final typingProvider =
+    StateNotifierProvider.family<TypingNotifier, Map<String, bool>, String>((
+      ref,
+      chatId,
+    ) {
+      final service = ref.watch(chatServiceProvider);
+      return TypingNotifier(service, chatId);
+    });

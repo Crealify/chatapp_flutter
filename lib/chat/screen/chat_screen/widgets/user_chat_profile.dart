@@ -1,3 +1,4 @@
+import 'package:chatapp_flutter/chat/provider/provider.dart';
 import 'package:chatapp_flutter/chat/provider/user_status_provider.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/chat_screen.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,9 @@ class UserChatProfile extends StatelessWidget {
     return Consumer(
       builder: (context, ref, child) {
         final statusAsync = ref.watch(userStatusProvider(widget.otherUser.uid));
+
+        final typingStatus = ref.watch(typingProvider(widget.chatId));
+        final isOtherUserTyping = typingStatus[widget.otherUser.uid] ?? false;
 
         return statusAsync.when(
           data: (isOnline) => Row(
@@ -38,6 +42,16 @@ class UserChatProfile extends StatelessWidget {
                     Text(widget.otherUser.name, style: TextStyle(fontSize: 16)),
 
                     // for typing indicator we well work some time later
+                    if (isOtherUserTyping)
+                      Row(
+                        children: [
+                          Text(
+                            "Typing",
+                            style: TextStyle(color: Colors.blue[600]),
+                          ),
+                          SizedBox(width: 4,),
+                        ],
+                      ),
                   ],
                 ),
               ),

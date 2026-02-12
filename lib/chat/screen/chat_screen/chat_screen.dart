@@ -28,6 +28,75 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final ImagePicker _imagePicker = ImagePicker();
   bool _isUploadingImage = false;
+  final FocusNode _textFieldFocousNode = FocusNode(); // this give addlistner
+  Timer? _typingTimer;
+  bool _isCurrentlyTyping = false;
+  bool _isTextFieldFocused = false;
+  Timer? _typingDebounceTimer;
+
+  @override
+  void initState() {
+    //attach listner to track focus events on text field
+    _textFieldFocousNode.addListener(() {
+      if (_textFieldFocousNode.hasFocus) {
+        _handleTextFieldFocus();
+      } else {
+        _handleTextFieldUnfocus();
+      }
+    });
+
+    super.initState();
+  }
+
+  //========= typing indicator handler ===============
+  void _handleTextChange(String text) {
+    //cancel previous timer
+
+    _typingDebounceTimer?.cancel();
+
+    if (text.trim().isNotEmpty && _isTextFieldFocused) {
+      if (!_isCurrentlyTyping) {
+        _isCurrentlyTyping = true;
+        ref.read(typingProvider(widget.chatId).notifier).setTyping(true);
+      }
+      // set timer to store typing after 2 seconds of no typing
+      _typingDebounceTimer = Timer(Duration(seconds: 2), () {
+        _handleTypingStop();
+      });
+    } else {
+      _handleTypingStop();
+    }
+  }
+
+  void _handleTypingStart() {
+    if (!_isCurrentlyTyping) {
+      _isCurrentlyTyping = true;
+      ref.read(typingProvider(widget.chatId).notifier).setTyping(true);
+    }
+
+    // cancel any existing timer
+    _typingTimer?.cancel();
+  }
+
+  void _handleTypingStop() {
+    if (!_isCurrentlyTyping) {
+      _isCurrentlyTyping = false;
+      ref.read(typingProvider(widget.chatId).notifier).setTyping(false);
+    }
+  }
+
+  void _handleTextFieldFocus() {
+    _isTextFieldFocused = true;
+    // start typing indicator if there's already text
+    if (_messageController.text.trim().isEmpty) {
+      _handleTypingStart();
+    }
+  }
+
+  void _handleTextFieldUnfocus() {
+    _isTextFieldFocused = false;
+    _handleTypingStop();
+  }
 
   //send text message
   Future<void> _sendMessage() async {
@@ -80,6 +149,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _messageController.dispose();
     _scrollController.dispose();
     _readStatusTimer?.cancel();
+    _textFieldFocousNode.dispose();
+    _typingTimer?.cancel();
+
+    if (_isCurrentlyTyping) {
+      ref.read(typingProvider(widget.chatId).notifier).setTyping(false);
+    }
     super.dispose();
   }
 
@@ -343,8 +418,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ),
                       maxLength: null,
                       onSubmitted: (value) => _sendMessage(),
-                      // onChanged: ,
-                      // onTap: ,
+                      onChanged: _handleTextChange,
+                      onTap: _handleTextFieldFocus,
                     ),
                   ),
 

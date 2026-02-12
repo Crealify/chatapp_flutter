@@ -44,8 +44,8 @@ class CallHistory extends StatelessWidget {
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.green.withAlpha(100),
-              border: Border.all(color: Colors.green),
+              color: Colors.green.withAlpha(10),
+              border: Border.all(color: Colors.green, width: 1),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Row(

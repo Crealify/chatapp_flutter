@@ -488,4 +488,56 @@ class ChatService {
       print("Error Marking Messaege as Read: $e");
     }
   }
+
+  // ========================= Typing Indicator ======================
+  Stream<Map<String, bool>> getTypingStatus(String chatId) {
+    return _firestore.collection("chats").doc(chatId).snapshots().map((doc) {
+      if (!doc.exists) return <String, bool>{};
+      final data = doc.data() as Map<String, dynamic>;
+      final typing = data['typing'] as Map<String, double>? ?? {};
+      final typingTimestamp =
+          data['typingTimestamp'] as Map<String, dynamic>? ?? {};
+      final result = <String, bool>{};
+      final now = DateTime.now();
+      typing.forEach((userid, isTyping) {
+        if (userid != currentUserId) {
+          // check if typing status is recent(within 5 seconds)
+
+          final timestamp = typingTimestamp[userid];
+          if (timestamp != null && isTyping == true) {
+            final typingTime = (timestamp as Timestamp).toDate();
+            final isRecent = now.difference(typingTime).inSeconds < 5;
+            result[userid] = isRecent;
+          } else {
+            result[userid] = false;
+          }
+        }
+      });
+      return result;
+    });
+  }
+
+  Future<void> setTypingStatus(String chatId, bool isTyping) async {
+    if (currentUserId.isEmpty) return;
+    try {
+      await _firestore.collection("chats").doc(chatId).update({
+        'typing.$currentUserId': isTyping,
+        'typingTimestamp.$currentUserId': FieldValue.serverTimestamp(),
+      });
+      // only set cleanup timer when stopping typing
+      if (!isTyping) {
+        Future.delayed(Duration(seconds: 1), () async {
+          try {
+            await _firestore.collection("chats").doc(chatId).update({
+              'typing.$currentUserId': false,
+            });
+          } catch (e) {
+            //ignore error for cleanup
+          }
+        });
+      }
+    } catch (e) {
+      print('Error updating typing status: $e');
+    }
+  }
 }
