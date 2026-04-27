@@ -128,9 +128,7 @@ class MessageAndInageDisplay extends StatelessWidget {
                           formatedMessageTime(message.timestamp),
                           style: TextStyle(
                             fontSize: 10,
-                            color: isMe
-                                ? const Color.fromARGB(255, 37, 33, 33)
-                                : Colors.black,
+                            color: isMe ? Colors.white : Colors.black54,
                           ),
                         ),
                         if (isMe) ...[

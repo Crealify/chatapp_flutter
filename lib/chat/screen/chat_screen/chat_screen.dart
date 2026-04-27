@@ -28,7 +28,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final ImagePicker _imagePicker = ImagePicker();
   bool _isUploadingImage = false;
-  final FocusNode _textFieldFocousNode = FocusNode(); // this give addlistner
+  final FocusNode _textFieldFocusNode = FocusNode(); // this give addlistner
   Timer? _typingTimer;
   bool _isCurrentlyTyping = false;
   bool _isTextFieldFocused = false;
@@ -37,8 +37,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   void initState() {
     //attach listner to track focus events on text field
-    _textFieldFocousNode.addListener(() {
-      if (_textFieldFocousNode.hasFocus) {
+    _textFieldFocusNode.addListener(() {
+      if (_textFieldFocusNode.hasFocus) {
         _handleTextFieldFocus();
       } else {
         _handleTextFieldUnfocus();
@@ -61,10 +61,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
       // set timer to store typing after 2 seconds of no typing
       _typingDebounceTimer = Timer(Duration(seconds: 2), () {
-        _handleTypingStop();
+        _handleTypingStop(); //stop the indicator after the messsage send
       });
     } else {
-      _handleTypingStop();
+      _handleTypingStart();
+      // _handleTypingStop();
     }
   }
 
@@ -83,6 +84,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _isCurrentlyTyping = false;
       ref.read(typingProvider(widget.chatId).notifier).setTyping(false);
     }
+    _typingTimer?.cancel(); //track stop typing
   }
 
   void _handleTextFieldFocus() {
@@ -137,8 +139,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Future<void> _markAsRead() async {
     _readStatusTimer?.cancel();
     _readStatusTimer = Timer(Duration(milliseconds: 500), () async {
-      final ChatService = ref.read(chatServiceProvider);
-      await ChatService.markMessageAsRead(widget.chatId);
+      final chatsService = ref.read(chatServiceProvider);
+      await chatsService.markMessageAsRead(widget.chatId);
       unreadMessagesIds.clear();
     });
   }
@@ -149,7 +151,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _messageController.dispose();
     _scrollController.dispose();
     _readStatusTimer?.cancel();
-    _textFieldFocousNode.dispose();
+    _textFieldFocusNode.dispose();
     _typingTimer?.cancel();
 
     if (_isCurrentlyTyping) {
@@ -202,9 +204,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(context, false),
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
                         child: Text("Unfriend"),
                       ),
                     ],
+
+                    //   TextButton(
+                    //     onPressed: () => Navigator.pop(context, false), // this false change to true for wroking
+                    //     child: Text("Unfriend"),
+                    //   ),
                   ),
                 );
                 //if confirmed -> unriednd
@@ -280,7 +291,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         message.senderId ==
                         FirebaseAuth.instance.currentUser!.uid;
                     final isSystem = message.type == "system";
-                    final isVideo = message.callType == 'vidoe';
+                    final isVideo = message.callType == 'video';
                     final isMissed = message.callStatus == 'missed';
                     final showDateHeader = shouldShowDateHeader(
                       messages,
@@ -376,78 +387,73 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 BoxShadow(
                   blurRadius: 4,
                   spreadRadius: 1,
-                  offset: Offset(0, -5),
+                  offset: Offset(0, -1),
                   color: Colors.grey.withAlpha(100),
                 ),
               ],
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  // Image Pickker Button
-                  IconButton(
-                    //last work do here
-                    // onPressed: () {},
-                    onPressed: _isUploadingImage
-                        ? null
-                        : () => _showImageOptions(),
-                    icon: Icon(
-                      Icons.image,
-                      size: 30,
-                      color: _isUploadingImage ? Colors.grey : Colors.blue,
-                    ),
+            child: Row(
+              children: [
+                // Image Pickker Button
+                IconButton(
+                  //last work do here
+                  // onPressed: () {},
+                  onPressed: _isUploadingImage
+                      ? null
+                      : () => _showImageOptions(),
+                  icon: Icon(
+                    Icons.image,
+                    size: 30,
+                    color: _isUploadingImage ? Colors.grey : Colors.blue,
                   ),
+                ),
 
-                  // ====== text field ===========
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: InputDecoration(
-                        hintText: "Text a message...",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: BorderSide.none,
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[100],
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 10,
-                        ),
+                // ====== text field ===========
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+
+                    focusNode: _textFieldFocusNode,
+                    decoration: InputDecoration(
+                      hintText: "Text a message...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                        borderSide: BorderSide.none,
                       ),
-                      maxLength: null,
-                      onSubmitted: (value) => _sendMessage(),
-                      onChanged: _handleTextChange,
-                      onTap: _handleTextFieldFocus,
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
                     ),
+                    maxLength: null,
+                    onSubmitted: (value) => _sendMessage(),
+                    onChanged: _handleTextChange,
+                    onTap: _handleTextFieldFocus,
                   ),
+                ),
 
-                  SizedBox(width: 8),
-                  //============ Send Button =-==============
-                  FloatingActionButton(
-                    onPressed: _isUploadingImage ? null : _sendMessage,
-                    mini: true,
-                    backgroundColor: Colors.white,
-                    elevation: 0,
+                SizedBox(width: 8),
+                //============ Send Button =-==============
+                FloatingActionButton(
+                  onPressed: _isUploadingImage ? null : _sendMessage,
+                  mini: true,
+                  backgroundColor: Colors.white,
+                  elevation: 0,
 
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: _isUploadingImage
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(
-                              Icons.send,
-                              color: Colors.blueAccent,
-                              size: 27,
-                            ),
-                    ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: _isUploadingImage
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Icon(Icons.send, color: Colors.blueAccent, size: 27),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -558,20 +564,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
     );
     if (result == true) {
-      await _sendImageMessae(imageFile, captionController.text);
+      await _sendImageMessage(imageFile, captionController.text);
     }
   }
 
   // send image to firestore/Cloudinary
 
-  Future<void> _sendImageMessae(File imageFile, String caption) async {
+  Future<void> _sendImageMessage(File imageFile, String caption) async {
     setState(() {
       _isUploadingImage = true;
     });
     try {
-      final ChatService = ref.read(chatServiceProvider);
+      final chatService = ref.read(chatServiceProvider);
 
-      final result = await ChatService.sendImageWithUpload(
+      final result = await chatService.sendImageWithUpload(
         chatId: widget.chatId,
         imageFile: imageFile,
         caption: caption.isEmpty ? null : caption,

@@ -1,6 +1,7 @@
 import 'package:chatapp_flutter/chat/provider/provider.dart';
 import 'package:chatapp_flutter/chat/provider/user_status_provider.dart';
 import 'package:chatapp_flutter/chat/screen/chat_screen/chat_screen.dart';
+import 'package:chatapp_flutter/chat/screen/chat_screen/widgets/dot_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,7 +12,7 @@ class UserChatProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer(
-      builder: (context, ref, child) {
+      builder: (context, ref, _) {
         final statusAsync = ref.watch(userStatusProvider(widget.otherUser.uid));
 
         final typingStatus = ref.watch(typingProvider(widget.chatId));
@@ -47,10 +48,19 @@ class UserChatProfile extends StatelessWidget {
                         children: [
                           Text(
                             "Typing",
-                            style: TextStyle(color: Colors.blue[600]),
+                            style: TextStyle(
+                              color: Colors.blue[600],
+                              fontSize: 12,
+                            ),
                           ),
-                          SizedBox(width: 4,),
+                          SizedBox(width: 4),
+                          ThreeDots(),
                         ],
+                      )
+                    else if (isOnline)
+                      Text(
+                        "Online",
+                        style: TextStyle(fontSize: 12, color: Colors.green),
                       ),
                   ],
                 ),

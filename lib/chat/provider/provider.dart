@@ -179,7 +179,7 @@ class TypingNotifier extends StateNotifier<Map<String, bool>> {
         .getTypingStatus(chatId)
         .listen(
           (typingData) => state = Map<String, bool>.from(typingData),
-          onError: (error, stackTrace) => state = {},
+          onError: (error) => state = {},
         );
   }
 
